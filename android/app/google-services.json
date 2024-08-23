@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "460649195522",
+    "project_id": "chia-se-tien-sinh-hoat-t-97a1b",
+    "storage_bucket": "chia-se-tien-sinh-hoat-t-97a1b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460649195522:android:13b73a7f29731bbba91f1b",
+        "android_client_info": {
+          "package_name": "com.example.chia_se_tien_"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_o_gXQXe1FgP2UKxtX1lakLLkgQy_kG4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460649195522:android:59dab078bf5c2b70a91f1b",
+        "android_client_info": {
+          "package_name": "com.example.chia_se_tien_sinh_hoat_tro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_o_gXQXe1FgP2UKxtX1lakLLkgQy_kG4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
