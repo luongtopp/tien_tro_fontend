@@ -1,21 +1,16 @@
 import 'package:chia_se_tien_sinh_hoat_tro/config/app_color.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:chia_se_tien_sinh_hoat_tro/routes/app_pages.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'config/bloc_providers.dart';
-import 'firebase_options.dart';
 import 'global.dart';
-import 'services/storage_service.dart';
+import 'routes/route_generator.dart';
 
 void main() async {
   Global.init();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(const MyApp());
 }
 
@@ -37,7 +32,7 @@ class MyApp extends StatelessWidget {
     );
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     return MultiBlocProvider(
-      providers: createBlocProviders(),
+      providers: [...AppPages.allBlocProvider(context)],
       child: ScreenUtilInit(
         designSize: const Size(430, 956),
         child: MaterialApp(
@@ -58,9 +53,7 @@ class MyApp extends StatelessWidget {
               primaryColor: AppColors.primaryColor,
             ),
           ),
-
-          // home: const OnBoardingScreen(),
-          // onGenerateRoute: AppPages.generateRouteSetting,
+          onGenerateRoute: generateRouteSetting,
         ),
       ),
     );

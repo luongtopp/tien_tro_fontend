@@ -1,7 +1,7 @@
 class AppRoutes {
   static const INITIAL = "/";
   static const APPLICATION = "/applicaton";
-  static const SING_IN = "/sign_in";
+  static const LOGIN = "/login";
   static const REGISTER = "/register";
   static const HOME_PAGE = "/home_page";
   static const SETTINGS = "/settings";

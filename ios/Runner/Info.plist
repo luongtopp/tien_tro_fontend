@@ -2,10 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleURLTypes</key>
+		<array>
+				<dict>
+						<key>CFBundleURLSchemes</key>
+						<array>
+								<string>com.googleusercontent.apps.460649195522-s2mq4apnep6k6rc1q1pc2i1ius3ea4ng</string>
+						</array>
+				</dict>
+		</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Chia Se Tien Sinh Hoat Tro</string>
+	<string>Chia Sẻ Tiền Trọ</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

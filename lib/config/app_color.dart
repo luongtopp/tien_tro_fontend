@@ -7,8 +7,9 @@ class AppColors {
   static const Color selectionColor = Color(0xFF91BDF3);
 
   static const LinearGradient backgroundColor = LinearGradient(
-    colors: [Color(0xFF00618A), Color(0xFF27A13D)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    colors: [Color(0xFF00618A), Color(0xFFD2D2D2)],
+    stops: [0.5, 1],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
   );
 }

@@ -1,4 +1,4 @@
-class StorageKeys {
+class AppConstants {
   static const String STORAGE_USER_ID = "user_id";
   static const String STORAGE_USER_TOKEN = "user_token";
   static const String STORAGE_REFRESH_TOKEN = "refresh_token";
