@@ -26,7 +26,10 @@ class AppPages {
         route: AppRoutes.LOGIN,
         page: const LoginScreen(),
         bloc: BlocProvider(
-          create: (context) => LoginBloc(),
+          create: (context) => LoginBloc(
+            authRepository: RepositoryProvider.of<AuthRepository>(context),
+            userRepository: RepositoryProvider.of<UserRepository>(context),
+          ),
         ),
       ),
       PageEntity(

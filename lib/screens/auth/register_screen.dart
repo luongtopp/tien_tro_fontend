@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../blocs/login_bloc/login_blocs.dart';
+import '../../blocs/login_bloc/login_events.dart';
 import '../../blocs/register_bloc/register_blocs.dart';
 import '../../blocs/register_bloc/register_states.dart';
 import '../../config/text_styles.dart';
@@ -48,15 +50,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 type: SnackBarType.success);
             // Navigator.pop(context);
             break;
-          case RegisterNotification():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.notificationMessage,
-                type: SnackBarType.success);
-            Navigator.pop(context);
-            break;
           case RegisterFailure():
             LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.error);
+            showCustomSnackBar(context, state.error, type: SnackBarType.failed);
           case RegisterError():
             LoadingOverlay.hide();
             showCustomSnackBar(context, state.error, type: SnackBarType.error);
@@ -175,7 +171,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                     ),
                     SizedBox(height: 21.h),
-                    buttonLoginGoogle(() {}),
+                    buttonLoginGoogle(() {
+                      context.read<LoginBloc>().add(LoginWithGoogle());
+                    }),
                     SizedBox(height: 24.h),
                   ],
                 ),

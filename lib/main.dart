@@ -55,7 +55,10 @@ class MyApp extends StatelessWidget {
           create: (context) => OnBoardingBloc(),
         ),
         BlocProvider<LoginBloc>(
-          create: (context) => LoginBloc(),
+          create: (context) => LoginBloc(
+            authRepository: RepositoryProvider.of<AuthRepository>(context),
+            userRepository: RepositoryProvider.of<UserRepository>(context),
+          ),
         ),
         BlocProvider<RegisterBloc>(
           create: (context) => RegisterBloc(

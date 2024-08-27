@@ -50,8 +50,8 @@ Widget textButton({
 Widget textButtonSignUp(void Function() ontap) {
   return InkWell(
     onTap: ontap,
-    child: Wrap(
-      children: const <Widget>[
+    child: const Wrap(
+      children: <Widget>[
         Text(
           'Bạn chưa có tài khoản? ',
           style: TextStyle(

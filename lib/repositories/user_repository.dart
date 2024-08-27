@@ -1,4 +1,6 @@
+import 'package:chia_se_tien_sinh_hoat_tro/exceptions/auth_exception.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user.dart';
 
 class UserRepository {
@@ -7,16 +9,18 @@ class UserRepository {
   UserRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // Tạo mới người dùng
+  // Tạo mới tài khoản
   Future<void> createUser(UserModel user) async {
     try {
-      // await _firestore.collection('users').doc(user.id).set(user.toMap());
+      await _firestore.collection('users').doc(user.id).set(user.toMap());
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Lỗi thêm thông tin tài khoản');
     } catch (e) {
-      throw Exception('Error creating user: $e');
+      throw AuthException('system', 'Lỗi thêm thông tin tài khoản: $e');
     }
   }
 
-  // Cập nhật thông tin người dùng
+  // Cập nhật thông tin tài khoản
   Future<void> updateUser(UserModel user) async {
     try {
       await _firestore.collection('users').doc(user.id).update(user.toMap());
@@ -25,7 +29,7 @@ class UserRepository {
     }
   }
 
-  // Xóa người dùng
+  // Xóa tài khoản
   Future<void> deleteUser(String userId) async {
     try {
       await _firestore.collection('users').doc(userId).delete();
@@ -34,7 +38,7 @@ class UserRepository {
     }
   }
 
-  // Lấy thông tin người dùng
+  // Lấy thông tin tài khoản
   Future<UserModel?> getUserById(String userId) async {
     try {
       DocumentSnapshot doc =

@@ -6,7 +6,7 @@ import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../config/text_styles.dart';
 
-enum SnackBarType { success, error, info }
+enum SnackBarType { success, failed, error, info }
 
 void showCustomSnackBar(
   BuildContext context,
@@ -20,6 +20,15 @@ void showCustomSnackBar(
     case SnackBarType.success:
       snackBar = CustomSnackBar.success(
         backgroundColor: AppColors.successColor,
+        boxShadow: [],
+        icon: const SizedBox(),
+        textStyle: TextStyles.notification,
+        message: message,
+      );
+      break;
+    case SnackBarType.failed:
+      snackBar = CustomSnackBar.error(
+        backgroundColor: AppColors.failedColor,
         boxShadow: [],
         icon: const SizedBox(),
         textStyle: TextStyles.notification,

@@ -1,97 +1,60 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import '../../exceptions/auth_exception.dart';
+import '../../models/user.dart';
+import '../../repositories/auth_repository.dart';
+import '../../repositories/user_repository.dart';
+import '../../utils/error_code_mapper.dart';
 import 'login_events.dart';
 import 'login_states.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(LoginInitial()) {
+  final AuthRepository _authRepository;
+  final UserRepository _userRepository;
+
+  LoginBloc({
+    required AuthRepository authRepository,
+    required UserRepository userRepository,
+  })  : _authRepository = authRepository,
+        _userRepository = userRepository,
+        super(LoginInitial()) {
     on<SubmitLogin>(_onSubmitLogin);
-    on<LoginWithGoogle>(_signInWithGoogle);
+    on<LoginWithGoogle>(_onLoginWithGoogle);
   }
 
   Future<void> _onSubmitLogin(
       SubmitLogin event, Emitter<LoginState> emit) async {
     emit(LoginValidating());
     try {
-      await _login(event.email, event.password);
+      User? user = await _authRepository.loginWithEmailPassword(
+          event.email, event.password);
+      if (user != null) {
+        emit(LoginSuccess("Đăng nhập thành công"));
+      }
+    } on AuthException catch (e) {
+      emit(LoginFailure(mapErrorCodeToMessage(e.code)));
+      rethrow;
     } catch (e) {
-      emit(LoginFailure('Đăng nhập thất bại'));
-    } finally {}
+      emit(LoginError('Đăng nhập thất bại: ${e.toString()}'));
+    }
   }
 
-  Future<void> _login(String email, String password) async {
-    try {
-      UserCredential credential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      var user = credential.user;
-      if (user != null) {
-        if (!user.emailVerified) {
-          throw FirebaseAuthException(
-              code: 'email-not-verified',
-              message: 'Tài khoản chưa được xác thực');
-        } else {
-          emit(LoginSuccess());
-          emit(LoginNotification('Đăng nhập thành công'));
-
-          // Global.storageService
-          //     .setString(AppConstants.STORAGE_USER_PROFILE_KEY, '1234');
-        }
-        return;
-      }
-    } on FirebaseAuthException catch (e) {
-      print(e.code);
-      switch (e.code) {
-        case 'invalid-credential':
-          emit(LoginFailure(
-              'Thông tin xác thực không hợp lệ. Vui lòng kiểm tra lại thông tin và thử lại'));
-          break;
-        case 'email-not-verifie':
-          emit(LoginFailure('Tài khoản chưa được xác thực'));
-          break;
-        case 'invalid-email':
-          emit(LoginFailure('Email không hợp lệ'));
-          break;
-        case 'user-disabled':
-          emit(LoginFailure('Tài khoản này đã bị vô hiệu hóa'));
-          break;
-        case 'user-not-found':
-          emit(LoginFailure('Tài khoản không tồn tại'));
-          break;
-        case 'wrong-password':
-          emit(LoginFailure('Mật khẩu không đúng'));
-          break;
-        case 'too-many-requests':
-          emit(LoginFailure('Quá nhiều yêu cầu. Vui lòng thử lại sau.'));
-          break;
-        default:
-          emit(LoginFailure('Đã xảy ra lỗi. Vui lòng thử lại.'));
-      }
-    } finally {}
-  }
-
-  Future<void> _signInWithGoogle(
+  Future<void> _onLoginWithGoogle(
       LoginWithGoogle event, Emitter<LoginState> emit) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser != null) {
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-      var user = userCredential.user;
-      if (user != null) {
-        emit(LoginSuccess());
-        emit(LoginNotification('Đăng nhập thành công'));
+    User? user = await _authRepository.loginWithGoogle();
+    if (user != null) {
+      if (await _userRepository.getUserById(user.uid) == null) {
+        final userModel = UserModel(
+          id: user.uid,
+          fullName: user.displayName!,
+          email: user.email!,
+          imageUrl: user.photoURL,
+          socialId: user.uid,
+          bankAccount: null,
+        );
+        await _userRepository.createUser(userModel);
       }
+      emit(LoginSuccess("Đăng nhập thành công"));
     }
   }
 }

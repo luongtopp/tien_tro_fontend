@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../exceptions/auth_exception.dart';
 
 class AuthRepository {
@@ -15,29 +16,22 @@ class AuthRepository {
 
   String? get uid => _firebaseAuth.currentUser?.uid;
 
-  Future<String?> _uploadImage(File file) async {
-    final ref =
-        _firebaseStorage.ref().child('avatars/${file.uri.pathSegments.last}');
-    try {
-      await ref.putFile(file);
-      return await ref.getDownloadURL();
-    } on FirebaseException catch (e) {
-      print('Không thể tải lên tệp: $e');
-      return null;
-    }
-  }
+  Future<User?> loginWithGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser != null) {
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-  Future<void> _updateUserProfile(
-      User user, String fullName, String? photoURL) async {
-    try {
-      await user.updateProfile(
-        displayName: fullName,
-        photoURL: photoURL ?? "",
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(
-          e.code, e.message ?? 'Lỗi khi cập nhật thông tin người dùng');
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      return userCredential.user;
     }
+    return null;
   }
 
   Future<User?> registerWithEmailPassword(
@@ -60,15 +54,42 @@ class AuthRepository {
           photoURL =
               "https://firebasestorage.googleapis.com/v0/b/chia-se-tien-sinh-hoat-t-97a1b.appspot.com/o/avatar%2Fperson_money.png?alt=media&token=e0029b6b-a0c3-46e9-bb88-f06b204c4e71";
         }
-
         await _updateUserProfile(user, fullName, photoURL);
       }
-
+      user = FirebaseAuth.instance.currentUser!;
       return user;
     } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Không xác định');
+      throw AuthException(e.code, e.message ?? 'Không xác định: $e');
     } catch (e) {
-      throw Exception('Lỗi khi đăng ký người dùng: $e');
+      throw AuthException('system', 'Lỗi khi đăng ký tài khoản: $e');
+    }
+  }
+
+  Future<void> _updateUserProfile(
+      User user, String fullName, String? photoURL) async {
+    try {
+      await user.updateProfile(
+        displayName: fullName,
+        photoURL: photoURL ?? "",
+      );
+      await user.reload();
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Không xác định: $e');
+    } catch (e) {
+      throw AuthException('system', 'Không cập nhật được ảnh: $e');
+    }
+  }
+
+  Future<String?> _uploadImage(File file) async {
+    final ref =
+        _firebaseStorage.ref().child('avatars/${file.uri.pathSegments.last}');
+    try {
+      await ref.putFile(file);
+      return await ref.getDownloadURL();
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Không xác định: $e');
+    } catch (e) {
+      throw AuthException('system', 'Lỗi khi đăng ký tài khoản: $e');
     }
   }
 
@@ -79,25 +100,39 @@ class AuthRepository {
         email: email,
         password: password,
       );
-      return userCredential.user;
+      if (!userCredential.user!.emailVerified) {
+        throw FirebaseAuthException(
+          code: 'email-not-verified',
+          message: 'Tài khoản chưa được xác thực',
+        );
+      } else {
+        return userCredential.user;
+      }
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Không xác định: $e');
     } catch (e) {
-      throw Exception('Lỗi khi đăng nhập: $e');
+      throw AuthException('system', 'Lỗi khi đăng ký tài khoản: $e');
     }
   }
 
   Future<void> logout() async {
     try {
       await _firebaseAuth.signOut();
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Không xác định: $e');
     } catch (e) {
-      throw Exception('Lỗi khi đăng xuất: $e');
+      throw AuthException('system', 'Lỗi khi đăng xuất: $e');
     }
   }
 
   Future<User?> getCurrentUser() async {
     try {
       return _firebaseAuth.currentUser;
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Không xác định: $e');
     } catch (e) {
-      throw Exception('Lỗi khi lấy thông tin người dùng hiện tại: $e');
+      throw AuthException(
+          'system', 'Lỗi khi lấy thông tin tài khoản hiện tại: $e');
     }
   }
 }

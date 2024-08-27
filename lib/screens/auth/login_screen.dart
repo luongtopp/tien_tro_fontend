@@ -35,19 +35,15 @@ class _LoginScreenState extends State<LoginScreen> {
           case LoginValidating():
             LoadingOverlay.show(context);
             break;
-
           case LoginSuccess():
             LoadingOverlay.hide();
-            // Navigator.of(context).pushReplacementNamed(AppRoutes.APPLICATION);
-
-            break;
-          case LoginNotification():
-            showCustomSnackBar(context, state.notificationMessage,
+            showCustomSnackBar(context, state.message,
                 type: SnackBarType.success);
+            // Navigator.of(context).pushReplacementNamed(AppRoutes.APPLICATION);
             break;
           case LoginFailure():
             LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.error);
+            showCustomSnackBar(context, state.error, type: SnackBarType.failed);
           case LoginError():
             LoadingOverlay.hide();
             showCustomSnackBar(context, state.error, type: SnackBarType.error);
@@ -131,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         context.read<LoginBloc>().add(
                               SubmitLogin(
                                 email: _emailController.text,
-                                password: _passwordController.text,
+                                password: _passwordController.text.trim(),
                               ),
                             );
                       }
