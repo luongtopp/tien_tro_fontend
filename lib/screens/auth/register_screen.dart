@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chia_se_tien_sinh_hoat_tro/blocs/register_bloc/register_events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,11 +8,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../blocs/register_bloc/register_blocs.dart';
 import '../../blocs/register_bloc/register_states.dart';
 import '../../config/text_styles.dart';
+import '../../utils/image_utils.dart';
 import '../../utils/loading_overlay.dart';
 import '../../utils/snackbar_utils.dart';
 import '../../utils/validators.dart';
 import '../../widgets/appbars/appbar_custom.dart';
 import '../../widgets/buttons/custom_button.dart';
+import '../../widgets/image_pickers/custom_image_picker.dart';
 import '../../widgets/textfields/custom_textfield.dart';
 import 'auth_widgets.dart';
 
@@ -28,6 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  File? _selectedImage;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +44,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             break;
           case RegisterSuccess():
             LoadingOverlay.hide();
-            Navigator.pop(context);
+            showCustomSnackBar(context, state.message,
+                type: SnackBarType.success);
+            // Navigator.pop(context);
             break;
           case RegisterNotification():
             LoadingOverlay.hide();
@@ -66,7 +73,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    SizedBox(height: 89.h),
+                    SizedBox(height: 20.h),
+                    CustomImagePicker(
+                      onImagePicked: () => pickImage(
+                        context: context,
+                        onImagePicked: (croppedFile) {
+                          setState(() {
+                            _selectedImage = croppedFile;
+                          });
+                        },
+                      ),
+                      image: _selectedImage,
+                    ),
                     SizedBox(height: 51.h),
                     CustomTextField(
                       controller: _usernameController,
@@ -148,10 +166,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         if (_formKey.currentState!.validate()) {
                           context.read<RegisterBloc>().add(
                                 SubmitRegister(
-                                  username: _usernameController.text,
-                                  email: _emailController.text,
-                                  password: _passwordController.text,
-                                ),
+                                    username: _usernameController.text,
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                    file: _selectedImage),
                               );
                         }
                       },

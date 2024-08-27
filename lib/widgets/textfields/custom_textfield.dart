@@ -63,6 +63,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
       onChanged: widget.onChanged,
+      onTapOutside: (value) {
+        FocusScope.of(context).unfocus();
+      },
       style: const TextStyle(
         fontSize: 16,
         color: Color(0xFF505050),
