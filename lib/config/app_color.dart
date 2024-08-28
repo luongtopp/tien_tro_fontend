@@ -6,8 +6,11 @@ class AppColors {
   static const Color failedColor = Color(0xFF757575);
   static const Color successColor = Color(0xFF27A13D);
   static const Color selectionColor = Color(0xFF91BDF3);
+  static const Color backgroundColor = Color(0xFFFFFFFF);
+  static const Color appbarColor = Color(0xFFFFFFFF);
+  static const Color textFillColor = Color(0xFFDCDCDC);
 
-  static const LinearGradient backgroundColor = LinearGradient(
+  static const LinearGradient backgroundColorLinear = LinearGradient(
     colors: [Color(0xFF00618A), Color(0xFFD2D2D2)],
     stops: [0.5, 1],
     begin: Alignment.topCenter,

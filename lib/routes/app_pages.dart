@@ -52,12 +52,8 @@ class AppPages {
     ];
   }
 
-  static List<dynamic> allBlocProvider(BuildContext context) {
-    List<dynamic> blocProviders = <dynamic>[];
-    for (var bloc in routes()) {
-      blocProviders.add(bloc.bloc);
-    }
-    return blocProviders;
+  static List<BlocProvider<dynamic>> allBlocProvider(BuildContext context) {
+    return routes().map<BlocProvider<dynamic>>((bloc) => bloc.bloc).toList();
   }
 }
 

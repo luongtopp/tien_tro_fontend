@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../config/app_color.dart';
+
 class CustomTextField extends StatefulWidget {
   final String hintText;
   final IconData prefixIcon;
@@ -76,7 +78,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         contentPadding:
             const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
         filled: true,
-        fillColor: const Color(0xFFDCDCDC),
+        fillColor: AppColors.textFillColor,
         floatingLabelAlignment: FloatingLabelAlignment.start,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         floatingLabelStyle: const TextStyle(

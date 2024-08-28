@@ -1,3 +1,4 @@
+import 'package:chia_se_tien_sinh_hoat_tro/config/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -27,7 +28,7 @@ AppBar appBarCustom({
         ),
       ),
     ),
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.appbarColor,
     centerTitle: true,
     title: Text(title, style: TextStyles.heading),
   );

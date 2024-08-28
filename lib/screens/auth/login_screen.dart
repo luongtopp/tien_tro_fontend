@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.backgroundColor,
         body: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.only(left: 48.w, right: 48.w),

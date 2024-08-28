@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../blocs/forgot_password_bloc/forgot_password_blocs.dart';
 import '../../blocs/forgot_password_bloc/forgot_password_states.dart';
+import '../../config/app_color.dart';
 import '../../config/text_styles.dart';
 import '../../utils/snackbar_utils.dart';
 import '../../utils/validators.dart';
@@ -51,7 +52,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.backgroundColor,
         appBar: appBarCustom(context: context, title: 'Quên mật khẩu'),
         body: SafeArea(
           child: Container(

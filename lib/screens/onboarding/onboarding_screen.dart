@@ -43,7 +43,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             child: Scaffold(
               body: Container(
                 decoration: const BoxDecoration(
-                  gradient: AppColors.backgroundColor,
+                  gradient: AppColors.backgroundColorLinear,
                 ),
                 child: Stack(
                   children: [

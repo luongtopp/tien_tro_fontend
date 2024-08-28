@@ -32,7 +32,6 @@ class CustomImagePicker extends StatelessWidget {
         decoration: BoxDecoration(
           shape: shape,
           border: effectiveBorder,
-          color: Colors.grey[200],
           image: image != null
               ? DecorationImage(
                   image: FileImage(image!),
@@ -46,12 +45,34 @@ class CustomImagePicker extends StatelessWidget {
         child: image == null
             ? Center(
                 child: Icon(
-                  Icons.camera_alt,
+                  Icons.camera_alt_rounded,
                   color: Colors.grey[600],
                   size: size * 0.4,
                 ),
               )
-            : null,
+            : Stack(
+                children: [
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFFFF),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: const Color(0xFF9E9E9E), width: 1),
+                      ),
+                      child: Icon(
+                        Icons.edit_rounded,
+                        color: Colors.grey[600],
+                        size: 15,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

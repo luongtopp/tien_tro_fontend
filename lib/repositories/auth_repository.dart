@@ -52,7 +52,7 @@ class AuthRepository {
           photoURL = await _uploadImage(imageFile);
         } else {
           photoURL =
-              "https://firebasestorage.googleapis.com/v0/b/chia-se-tien-sinh-hoat-t-97a1b.appspot.com/o/avatar%2Fperson_money.png?alt=media&token=e0029b6b-a0c3-46e9-bb88-f06b204c4e71";
+              "https://firebasestorage.googleapis.com/v0/b/chia-se-tien-sinh-hoat-t-97a1b.appspot.com/o/avatars%2Fperson_money.png?alt=media&token=3e5be910-1f00-4278-aeba-36aca4af3928";
         }
         await _updateUserProfile(user, fullName, photoURL);
       }

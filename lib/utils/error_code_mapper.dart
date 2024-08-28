@@ -11,7 +11,7 @@ String mapErrorCodeToMessage(String errorCode) {
     case 'user-disabled':
       return 'Tài khoản này đã bị vô hiệu hóa.';
     case 'invalid-credential':
-      return 'Thông tin xác thực không hợp lệ. Vui lòng kiểm tra lại thông tin và thử lại';
+      return 'Email hoặc mật khẩu không đúng';
     case 'email-not-verified':
       return 'Tài khoản chưa được xác thực';
     case 'user-not-found':

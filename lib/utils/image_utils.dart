@@ -44,38 +44,41 @@ Future<void> pickImage({
   final selectedOption = await showModalBottomSheet<int>(
     context: context,
     builder: (BuildContext context) {
-      return Container(
-        padding: EdgeInsets.all(15),
-        width: double.infinity,
-        height: 200,
-        child: Column(
-          children: [
-            ButtonModalBottomSheet(
-              text: 'Máy ảnh',
-              width: double.infinity,
-              height: 70,
-              icon: Icons.camera_alt_rounded,
-              color: AppColors.primaryColor,
-              textStyle: TextStyles.filledButton,
-              borderRadius: 20,
-              onTap: () {
-                Navigator.pop(context, 1);
-              },
-            ),
-            const SizedBox(height: 15),
-            ButtonModalBottomSheet(
-              text: 'Thư viện',
-              width: double.infinity,
-              height: 70,
-              icon: Icons.photo_library_rounded,
-              color: AppColors.primaryColor,
-              textStyle: TextStyles.filledButton,
-              borderRadius: 20,
-              onTap: () {
-                Navigator.pop(context, 2);
-              },
-            )
-          ],
+      return SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          width: double.infinity,
+          height: 200,
+          color: AppColors.backgroundColor,
+          child: Column(
+            children: [
+              ButtonModalBottomSheet(
+                text: 'Máy ảnh',
+                width: double.infinity,
+                height: 70,
+                icon: Icons.camera_alt_rounded,
+                color: AppColors.primaryColor,
+                textStyle: TextStyles.filledButton,
+                borderRadius: 20,
+                onTap: () {
+                  Navigator.pop(context, 1);
+                },
+              ),
+              const SizedBox(height: 15),
+              ButtonModalBottomSheet(
+                text: 'Thư viện',
+                width: double.infinity,
+                height: 70,
+                icon: Icons.photo_library_rounded,
+                color: AppColors.primaryColor,
+                textStyle: TextStyles.filledButton,
+                borderRadius: 20,
+                onTap: () {
+                  Navigator.pop(context, 2);
+                },
+              )
+            ],
+          ),
         ),
       );
     },

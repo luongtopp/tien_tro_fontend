@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chia_se_tien_sinh_hoat_tro/blocs/register_bloc/register_events.dart';
+import 'package:chia_se_tien_sinh_hoat_tro/config/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             LoadingOverlay.hide();
             showCustomSnackBar(context, state.message,
                 type: SnackBarType.success);
-            // Navigator.pop(context);
+            Navigator.pop(context);
             break;
           case RegisterFailure():
             LoadingOverlay.hide();
@@ -59,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.backgroundColor,
         appBar: appBarCustom(context: context, title: 'Đăng ký'),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -71,6 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     SizedBox(height: 20.h),
                     CustomImagePicker(
+                      size: 75,
                       onImagePicked: () => pickImage(
                         context: context,
                         onImagePicked: (croppedFile) {
