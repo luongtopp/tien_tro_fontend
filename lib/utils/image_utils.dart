@@ -2,12 +2,14 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../config/app_color.dart';
 import '../config/text_styles.dart';
 import '../widgets/buttons/button_modal_bottom_sheet.dart';
+import 'modal_bottom_sheet_utils.dart';
 
 Future<void> cropImage({
   required File imageFile,
@@ -41,48 +43,34 @@ Future<void> pickImage({
   required BuildContext context,
   required Function(File) onImagePicked,
 }) async {
-  final selectedOption = await showModalBottomSheet<int>(
-    context: context,
-    builder: (BuildContext context) {
-      return SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          width: double.infinity,
-          height: 200,
-          color: AppColors.backgroundColor,
-          child: Column(
-            children: [
-              ButtonModalBottomSheet(
-                text: 'Máy ảnh',
-                width: double.infinity,
-                height: 70,
-                icon: Icons.camera_alt_rounded,
-                color: AppColors.primaryColor,
-                textStyle: TextStyles.filledButton,
-                borderRadius: 20,
-                onTap: () {
-                  Navigator.pop(context, 1);
-                },
-              ),
-              const SizedBox(height: 15),
-              ButtonModalBottomSheet(
-                text: 'Thư viện',
-                width: double.infinity,
-                height: 70,
-                icon: Icons.photo_library_rounded,
-                color: AppColors.primaryColor,
-                textStyle: TextStyles.filledButton,
-                borderRadius: 20,
-                onTap: () {
-                  Navigator.pop(context, 2);
-                },
-              )
-            ],
-          ),
-        ),
-      );
-    },
-  );
+  final selectedOption =
+      await showCustomModalBottomSheet(context: context, buttons: <Widget>[
+    ButtonModalBottomSheet(
+      text: 'Máy ảnh',
+      width: double.infinity,
+      height: 70,
+      icon: Icons.camera_alt_rounded,
+      color: AppColors.primaryColor,
+      textStyle: TextStyles.filledButton,
+      borderRadius: 20,
+      onTap: () {
+        Navigator.pop(context, 1);
+      },
+    ),
+    const SizedBox(height: 15),
+    ButtonModalBottomSheet(
+      text: 'Thư viện',
+      width: double.infinity,
+      height: 70,
+      icon: Icons.photo_library_rounded,
+      color: AppColors.primaryColor,
+      textStyle: TextStyles.filledButton,
+      borderRadius: 20,
+      onTap: () {
+        Navigator.pop(context, 2);
+      },
+    )
+  ]);
 
   if (selectedOption == null) return;
 

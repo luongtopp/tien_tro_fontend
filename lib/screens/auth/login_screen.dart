@@ -37,9 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
             break;
           case LoginSuccess():
             LoadingOverlay.hide();
-            showCustomSnackBar(context, state.message,
-                type: SnackBarType.success);
-            // Navigator.of(context).pushReplacementNamed(AppRoutes.APPLICATION);
+            Navigator.of(context).popAndPushNamed(AppRoutes.ZOOM_DRAWER_SCREEN);
             break;
           case LoginFailure():
             LoadingOverlay.hide();
@@ -47,6 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
           case LoginError():
             LoadingOverlay.hide();
             showCustomSnackBar(context, state.error, type: SnackBarType.error);
+          case LoginOutSuccess():
+            LoadingOverlay.hide();
         }
       },
       child: Scaffold(

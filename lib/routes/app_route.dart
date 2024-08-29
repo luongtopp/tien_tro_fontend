@@ -3,7 +3,8 @@ class AppRoutes {
   static const APPLICATION = "/applicaton";
   static const LOGIN = "/login";
   static const REGISTER = "/register";
-  static const HOME_PAGE = "/home_page";
+  static const HOME_SCREEN = "/home_screen";
+  static const ZOOM_DRAWER_SCREEN = "/zoom_drawer_screen";
   static const SETTINGS = "/settings";
   static const FORGOT_PASSWORD = "/forgot_password";
   static const GROUP = "/group";

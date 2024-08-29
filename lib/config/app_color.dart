@@ -9,7 +9,10 @@ class AppColors {
   static const Color backgroundColor = Color(0xFFFFFFFF);
   static const Color appbarColor = Color(0xFFFFFFFF);
   static const Color textFillColor = Color(0xFFDCDCDC);
-
+  static const Color buttonOutLineColor = Color(0xFFFFFFFF);
+  static const Color buttonFillColor = Color(0xFF00618A);
+  static const Color borderImageColor = Color(0xFFC9C9C9);
+  static const Color iconDrawerColor = Color(0xFFFFFFFF);
   static const LinearGradient backgroundColorLinear = LinearGradient(
     colors: [Color(0xFF00618A), Color(0xFFD2D2D2)],
     stops: [0.5, 1],

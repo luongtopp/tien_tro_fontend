@@ -17,10 +17,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     required UserRepository userRepository,
   })  : _authRepository = authRepository,
         _userRepository = userRepository,
-        super(LoginInitial()) {
+        super(RegisterInitial()) {
     on<SubmitRegister>(_onSubmitRegister);
     on<UpdateUserEvent>(_onUpdateUser);
     on<DeleteUserEvent>(_onDeleteUser);
+    on<FindUserEvent>(_onFindUser);
   }
 
   Future<void> _onSubmitRegister(
@@ -71,6 +72,16 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       emit(RegisterSuccess("Xóa tài khoản thành công"));
     } catch (e) {
       emit(RegisterError('Xóa tài khoản thất bại: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onFindUser(
+      FindUserEvent event, Emitter<RegisterState> emit) async {
+    try {
+      await _userRepository.deleteUser(event.userId);
+      emit(RegisterSuccess("Tìm tài khoản thành công"));
+    } catch (e) {
+      emit(RegisterError('Tìm tài khoản thất bại: ${e.toString()}'));
     }
   }
 }

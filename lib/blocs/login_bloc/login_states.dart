@@ -19,6 +19,10 @@ class LoginError extends LoginState {
   LoginError(this.error);
 }
 
+class LoginOutSuccess extends LoginState {
+  LoginOutSuccess();
+}
+
 class LoginNotification extends LoginState {
   final String notificationMessage;
   LoginNotification(this.notificationMessage);

@@ -20,6 +20,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         super(LoginInitial()) {
     on<SubmitLogin>(_onSubmitLogin);
     on<LoginWithGoogle>(_onLoginWithGoogle);
+    on<Logout>(_onLogout);
   }
 
   Future<void> _onSubmitLogin(
@@ -41,20 +42,41 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Future<void> _onLoginWithGoogle(
       LoginWithGoogle event, Emitter<LoginState> emit) async {
-    User? user = await _authRepository.loginWithGoogle();
-    if (user != null) {
-      if (await _userRepository.getUserById(user.uid) == null) {
-        final userModel = UserModel(
-          id: user.uid,
-          fullName: user.displayName!,
-          email: user.email!,
-          imageUrl: user.photoURL,
-          socialId: user.uid,
-          bankAccount: null,
-        );
-        await _userRepository.createUser(userModel);
+    emit(LoginValidating());
+    try {
+      User? user = await _authRepository.loginWithGoogle();
+      if (user != null) {
+        if (await _userRepository.getUserById(user.uid) == null) {
+          final userModel = UserModel(
+            id: user.uid,
+            fullName: user.displayName!,
+            email: user.email!,
+            imageUrl: user.photoURL,
+            socialId: user.uid,
+            bankAccount: null,
+          );
+          await _userRepository.createUser(userModel);
+        }
+        emit(LoginSuccess("Đăng nhập thành công"));
       }
-      emit(LoginSuccess("Đăng nhập thành công"));
+    } on AuthException catch (e) {
+      emit(LoginFailure(mapErrorCodeToMessage(e.code)));
+      rethrow;
+    } catch (e) {
+      emit(LoginError('Đăng nhập thất bại: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onLogout(Logout event, Emitter<LoginState> emit) async {
+    emit(LoginValidating());
+    try {
+      await _authRepository.logout();
+      emit(LoginOutSuccess());
+    } on AuthException catch (e) {
+      emit(LoginFailure(mapErrorCodeToMessage(e.code)));
+      rethrow;
+    } catch (e) {
+      emit(LoginError('Đăng xuất thất bại: ${e.toString()}'));
     }
   }
 }

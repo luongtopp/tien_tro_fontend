@@ -7,6 +7,11 @@ class TextStyles {
     fontWeight: FontWeight.bold,
     color: Color(0xFF4C4C4C),
   );
+  static const TextStyle headingDrawer = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Color(0xFFFFFFFF),
+  );
 
   static const TextStyle subheading = TextStyle(
     fontSize: 14.0,
@@ -46,6 +51,16 @@ class TextStyles {
     color: AppColors.primaryColor,
   );
 
+  static const TextStyle textItemDrawer = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: Color(0xFFFFFFFF),
+  );
+  static const TextStyle textItemDrawerNoSelected = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.primaryColor,
+  );
   static const TextStyle notification = TextStyle(
     fontSize: 14.0,
     fontWeight: FontWeight.w400,

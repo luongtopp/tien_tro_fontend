@@ -1,6 +1,6 @@
 abstract class RegisterState {}
 
-class LoginInitial extends RegisterState {}
+class RegisterInitial extends RegisterState {}
 
 class RegisterValidating extends RegisterState {}
 

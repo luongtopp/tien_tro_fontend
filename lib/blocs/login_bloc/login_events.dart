@@ -12,3 +12,7 @@ class SubmitLogin extends LoginEvent {
 class LoginWithGoogle extends LoginEvent {
   LoginWithGoogle();
 }
+
+class Logout extends LoginEvent {
+  Logout();
+}

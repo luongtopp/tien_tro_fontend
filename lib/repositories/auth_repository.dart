@@ -117,6 +117,7 @@ class AuthRepository {
 
   Future<void> logout() async {
     try {
+      await GoogleSignIn().signOut();
       await _firebaseAuth.signOut();
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.code, e.message ?? 'Không xác định: $e');

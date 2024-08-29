@@ -1,4 +1,3 @@
-// lib/config/app_theme.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +24,7 @@ ThemeData appTheme() {
     ),
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: AppColors.primaryColor,
-      selectionColor: Color.fromARGB(255, 145, 189, 243),
+      selectionColor: AppColors.selectionColor,
       selectionHandleColor: AppColors.primaryColor,
     ),
     cupertinoOverrideTheme: const CupertinoThemeData(

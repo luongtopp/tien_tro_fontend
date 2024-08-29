@@ -14,9 +14,9 @@ class UserRepository {
     try {
       await _firestore.collection('users').doc(user.id).set(user.toMap());
     } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi thêm thông tin tài khoản');
+      throw AuthException(e.code, e.message ?? 'Lỗi tạo tài khoản');
     } catch (e) {
-      throw AuthException('system', 'Lỗi thêm thông tin tài khoản: $e');
+      throw AuthException('system', 'Lỗi tạo tài khoản: $e');
     }
   }
 
@@ -24,8 +24,10 @@ class UserRepository {
   Future<void> updateUser(UserModel user) async {
     try {
       await _firestore.collection('users').doc(user.id).update(user.toMap());
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Lỗi sửa tài khoản');
     } catch (e) {
-      throw Exception('Error updating user: $e');
+      throw AuthException('system', 'Lỗi tạo tài khoản: $e');
     }
   }
 
@@ -33,8 +35,10 @@ class UserRepository {
   Future<void> deleteUser(String userId) async {
     try {
       await _firestore.collection('users').doc(userId).delete();
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Lỗi xóa tài khoản');
     } catch (e) {
-      throw Exception('Error deleting user: $e');
+      throw AuthException('system', 'Lỗi xóa tài khoản: $e');
     }
   }
 
@@ -47,8 +51,10 @@ class UserRepository {
         return UserModel.fromFirestore(doc);
       }
       return null;
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.code, e.message ?? 'Lỗi tìm nạp tài khoản');
     } catch (e) {
-      throw Exception('Error fetching user: $e');
+      throw AuthException('system', 'Lỗi tìm nạp tài khoản: $e');
     }
   }
 }

@@ -8,7 +8,7 @@ class ButtonModalBottomSheet extends StatefulWidget {
     required this.text,
     required this.width,
     required this.height,
-    required this.icon,
+    this.icon,
     required this.color,
     required this.textStyle,
     required this.borderRadius,
@@ -20,7 +20,7 @@ class ButtonModalBottomSheet extends StatefulWidget {
   final double borderRadius;
   final Color color;
   final TextStyle textStyle;
-  final IconData icon;
+  final IconData? icon;
   final bool isBorder;
   final void Function()? onTap;
   final String text;
@@ -71,10 +71,12 @@ class ButtonModalBottomSheetState extends State<ButtonModalBottomSheet>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    widget.icon,
-                    color: const Color(0xFFFFFFFF),
-                  ),
+                  widget.icon != null
+                      ? Icon(
+                          widget.icon,
+                          color: const Color(0xFFFFFFFF),
+                        )
+                      : const SizedBox(),
                   const SizedBox(width: 15),
                   Text(widget.text, style: widget.textStyle),
                 ],

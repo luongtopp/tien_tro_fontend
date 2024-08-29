@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
-import 'package:image_picker/image_picker.dart';
-
 import '../../models/user.dart';
 
 abstract class RegisterEvent extends Equatable {
@@ -42,6 +40,15 @@ class DeleteUserEvent extends RegisterEvent {
   final String userId;
 
   const DeleteUserEvent(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
+}
+
+class FindUserEvent extends RegisterEvent {
+  final String userId;
+
+  const FindUserEvent(this.userId);
 
   @override
   List<Object?> get props => [userId];
