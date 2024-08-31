@@ -87,7 +87,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                             activeColor: AppColors.primaryColor,
                             activeSize: const Size(18.0, 8.0),
                             activeShape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                              borderRadius: BorderRadius.circular(5.r),
                             )),
                         dotsCount: 3,
                       ),
@@ -125,12 +125,12 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 Text(
                   headingText,
                   textAlign: TextAlign.center,
-                  style: TextStyles.titleStyle,
+                  style: AppTextStyles.titleStyle,
                 ),
                 SizedBox(height: 15.h),
                 Text(
                   subText,
-                  style: TextStyles.subtitleStyle,
+                  style: AppTextStyles.subtitleStyle,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -158,8 +158,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
             width: 261.w,
             height: 70.h,
             color: Colors.white,
-            textStyle: TextStyles.outlinedButton,
-            borderRadius: 67.w,
+            textStyle: AppTextStyles.outlinedButton,
+            borderRadius: 67.r,
           ),
         )
       ],

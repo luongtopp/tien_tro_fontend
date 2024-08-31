@@ -4,14 +4,24 @@ import 'package:flutter/services.dart';
 
 import 'app_color.dart';
 
-void configureSystemUI() {
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.transparent,
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ),
-  );
+void configureSystemUI(BuildContext context) {
+  if (Theme.of(context).platform == TargetPlatform.iOS) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness:
+              Brightness.light), // This makes the status bar icons dark on iOS
+    );
+  } else {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark),
+    );
+  }
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 }
 

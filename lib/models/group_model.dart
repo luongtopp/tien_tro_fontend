@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'member.dart';
+import 'member_model.dart';
 
 class GroupModel {
   final String? id;
@@ -14,10 +14,11 @@ class GroupModel {
   final String type;
   final String creator;
   final DateTime createdDate;
-  final List<Member> members;
+  final List<MemberModel> members;
+  final int memberCount;
 
   GroupModel({
-    required this.id,
+    this.id,
     required this.name,
     required this.description,
     required this.code,
@@ -29,34 +30,40 @@ class GroupModel {
     required this.creator,
     required this.createdDate,
     required this.members,
+    required this.memberCount,
   });
 
   factory GroupModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return GroupModel(
-      id: data['id'],
-      name: data['name'],
-      description: data['description'],
-      code: data['code'],
-      ownerId: data['ownerId'],
-      ownerUserId: data['ownerUserId'],
-      isActive: data['isActive'],
-      isReceiveNotification: data['isReceiveNotification'],
-      type: data['type'],
-      creator: data['creator'],
-      createdDate: (data['createdDate'] as Timestamp)
-          .toDate(), // Chuyển đổi Timestamp sang DateTime
-      members: (data['members'] as List<dynamic>?)
-              ?.map((item) => Member.fromMap(item as Map<String, dynamic>))
-              .toList() ??
-          [],
-    );
+    try {
+      final data = doc.data() as Map<String, dynamic>;
+      return GroupModel(
+        id: doc.id,
+        name: data['name'] as String,
+        description: data['description'] as String,
+        code: data['code'] as String,
+        ownerId: data['ownerId'] as String,
+        ownerUserId: data['ownerUserId'] as String,
+        isActive: data['isActive'] as bool,
+        isReceiveNotification: data['isReceiveNotification'] as bool,
+        type: data['type'] as String,
+        creator: data['creator'] as String,
+        createdDate: (data['createdDate'] as Timestamp).toDate(),
+        members: (data['members'] as List<dynamic>?)
+                ?.map(
+                    (item) => MemberModel.fromMap(item as Map<String, dynamic>))
+                .toList() ??
+            [],
+        memberCount: data['memberCount'] as int? ?? 0,
+      );
+    } on Exception catch (e) {
+      throw Exception('Lỗi tạo nhóm từ firestore: $e');
+    }
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
+      'description': description,
       'code': code,
       'ownerId': ownerId,
       'ownerUserId': ownerUserId,
@@ -64,10 +71,9 @@ class GroupModel {
       'isReceiveNotification': isReceiveNotification,
       'type': type,
       'creator': creator,
-      'createdDate': createdDate, // Thêm vào toMap
-      'members': members
-          .map((member) => member.toMap())
-          .toList(), // Chuyển đổi danh sách Member thành danh sách map
+      'createdDate': Timestamp.fromDate(createdDate),
+      'members': members.map((member) => member.toMap()).toList(),
+      'memberCount': memberCount,
     };
   }
 
@@ -83,7 +89,8 @@ class GroupModel {
     String? type,
     String? creator,
     DateTime? createdDate,
-    List<Member>? members,
+    List<MemberModel>? members,
+    int? memberCount,
   }) {
     return GroupModel(
       id: id ?? this.id,
@@ -99,6 +106,7 @@ class GroupModel {
       creator: creator ?? this.creator,
       createdDate: createdDate ?? this.createdDate,
       members: members ?? this.members,
+      memberCount: memberCount ?? this.memberCount,
     );
   }
 }

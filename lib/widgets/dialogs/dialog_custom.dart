@@ -19,7 +19,7 @@ void showDialogCustom({
       return Dialog(
         backgroundColor: dialogBackgroundColor ?? Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius ?? 30.w),
+          borderRadius: BorderRadius.circular(borderRadius ?? 30.r),
         ),
         child: Container(
           padding: EdgeInsets.fromLTRB(15.w, 10.h, 10.w, 15.h),
@@ -103,7 +103,7 @@ class DialogButton extends StatelessWidget {
         height: 36.h,
         decoration: BoxDecoration(
           color: fillColor ? AppColors.primaryColor : null,
-          borderRadius: BorderRadius.circular(10.w),
+          borderRadius: BorderRadius.circular(10.r),
           border: Border.all(color: AppColors.primaryColor, width: 1),
         ),
         child: Text(

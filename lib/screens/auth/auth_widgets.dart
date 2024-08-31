@@ -42,7 +42,7 @@ Widget textButton({
     onTap: onTap,
     child: Text(
       text,
-      style: TextStyles.textButton,
+      style: AppTextStyles.textButton,
     ),
   );
 }

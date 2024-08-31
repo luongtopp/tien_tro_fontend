@@ -20,6 +20,7 @@ MultiBlocProvider appBlocProviders(BuildContext context, Widget child) {
         create: (context) => LoginBloc(
           authRepository: RepositoryProvider.of<AuthRepository>(context),
           userRepository: RepositoryProvider.of<UserRepository>(context),
+          groupRepository: RepositoryProvider.of<GroupRepository>(context),
         ),
       ),
       BlocProvider<RegisterBloc>(

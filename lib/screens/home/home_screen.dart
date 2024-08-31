@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
+import '../../models/group_model.dart';
+
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final List<GroupModel> groups;
+  const HomeScreen({super.key, required this.groups});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Home'),
         leading: IconButton(
-          icon: Icon(Icons.menu),
+          icon: const Icon(Icons.menu_rounded),
           onPressed: () {
             ZoomDrawer.of(context)!.toggle();
           },

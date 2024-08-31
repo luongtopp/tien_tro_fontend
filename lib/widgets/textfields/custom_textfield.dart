@@ -14,6 +14,8 @@ class CustomTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final TextInputAction textInputAction;
 
+  final int? maxLines;
+
   const CustomTextField({
     super.key,
     required this.hintText,
@@ -25,6 +27,7 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.onChanged,
     this.textInputAction = TextInputAction.done,
+    this.maxLines,
   });
 
   @override
@@ -58,13 +61,33 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final isMultiline = widget.maxLines != null && widget.maxLines! > 1;
+    final effectiveTextInputAction = widget.textInputAction ??
+        (isMultiline ? TextInputAction.newline : TextInputAction.done);
+    final effectiveKeyboardType =
+        isMultiline ? TextInputType.multiline : widget.keyboardType;
+
     return TextFormField(
       controller: _controller,
       validator: widget.validator,
       obscureText: widget.obscureText ? _isObscure : false,
-      keyboardType: widget.keyboardType,
-      textInputAction: widget.textInputAction,
+      keyboardType: effectiveKeyboardType,
+      textInputAction: effectiveTextInputAction,
       onChanged: widget.onChanged,
+      maxLines: widget.maxLines ?? 1,
+      minLines: 1,
+      onFieldSubmitted: (value) {
+        if (widget.textInputAction == TextInputAction.newline) {
+          final currentValue = _controller.text;
+          final selection = _controller.selection;
+          final newValue =
+              currentValue.replaceRange(selection.start, selection.end, '\n');
+          _controller.value = TextEditingValue(
+            text: newValue,
+            selection: TextSelection.collapsed(offset: selection.start + 1),
+          );
+        }
+      },
       onTapOutside: (value) {
         FocusScope.of(context).unfocus();
       },

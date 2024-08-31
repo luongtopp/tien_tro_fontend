@@ -1,84 +1,82 @@
-import 'package:chia_se_tien_sinh_hoat_tro/exceptions/auth_exception.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/group.dart';
+import '../models/group_model.dart';
+import '../models/member_model.dart';
+import '../exceptions/firebase_exception.dart';
+import 'user_repository.dart';
 
 class GroupRepository {
   final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
+  final UserRepository _userRepository;
 
-  GroupRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  GroupRepository({
+    FirebaseFirestore? firestore,
+    FirebaseAuth? auth,
+    UserRepository? userRepository,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _auth = auth ?? FirebaseAuth.instance,
+        _userRepository = userRepository ?? UserRepository();
 
-// Stream các nhóm từ Firestore
   Stream<List<GroupModel>> streamGroups() {
-    return _firestore.collection('groups').snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return GroupModel.fromFirestore(doc);
-      }).toList();
-    });
+    return _firestore.collection('groups').snapshots().map((snapshot) =>
+        snapshot.docs.map((doc) => GroupModel.fromFirestore(doc)).toList());
   }
 
-  // Stream một nhóm cụ thể theo groupId
   Stream<GroupModel?> streamGroupById(String groupId) {
-    return _firestore.collection('groups').doc(groupId).snapshots().map((doc) {
-      if (doc.exists) {
-        return GroupModel.fromFirestore(doc);
-      }
-      return null;
-    });
+    return _firestore
+        .collection('groups')
+        .doc(groupId)
+        .snapshots()
+        .map((doc) => doc.exists ? GroupModel.fromFirestore(doc) : null);
   }
 
-  // Tạo mới nhóm
   Future<void> createGroup(GroupModel group) async {
     try {
-      await _firestore.collection('groups').doc(group.id).set(group.toMap());
+      DocumentReference docRef =
+          await _firestore.collection('groups').add(group.toMap());
+      await docRef.update({'id': docRef.id});
+      await _userRepository.saveLastAccessedGroupId(
+          group.ownerUserId, docRef.id);
     } on FirebaseException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi tạo nhóm');
+      throw handleException(e, 'Lỗi tạo nhóm', 'group');
     } catch (e) {
-      throw AuthException('system', 'Lỗi tạo nhóm: $e');
+      throw Exception('Lỗi tạo nhóm: $e');
     }
   }
 
-  // Cập nhật thông tin nhóm
   Future<void> updateGroup(GroupModel group) async {
     try {
       await _firestore.collection('groups').doc(group.id).update(group.toMap());
     } on FirebaseException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi cập nhật nhóm');
+      throw handleException(e, 'Lỗi cập nhật nhóm', 'group');
     } catch (e) {
-      throw AuthException('system', 'Lỗi cập nhật nhóm: $e');
+      throw Exception('Lỗi cập nhật nhóm: $e');
     }
   }
 
-  // Xóa nhóm
   Future<void> deleteGroup(String groupId) async {
     try {
       await _firestore.collection('groups').doc(groupId).delete();
     } on FirebaseException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi xóa nhóm');
+      throw handleException(e, 'Lỗi xóa nhóm', 'group');
     } catch (e) {
-      throw AuthException('system', 'Lỗi xóa nhóm: $e');
+      throw Exception('Lỗi xóa nhóm: $e');
     }
   }
 
-  // Lấy thông tin nhóm
   Future<GroupModel?> getGroupById(String groupId) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('groups').doc(groupId).get();
-      if (doc.exists) {
-        return GroupModel.fromFirestore(doc);
-      }
-      return null;
+      return doc.exists ? GroupModel.fromFirestore(doc) : null;
     } on FirebaseException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi tìm nạp nhóm');
+      throw handleException(e, 'Lỗi tìm nạp nhóm', 'group');
     } catch (e) {
-      throw AuthException('system', 'Lỗi tìm nạp nhóm: $e');
+      throw Exception('Lỗi tìm nạp nhóm: $e');
     }
   }
 
-  // Lấy thông tin nhóm bằng code
   Future<GroupModel?> getGroupByCode(String code) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
@@ -88,31 +86,83 @@ class GroupRepository {
           .get();
       if (querySnapshot.docs.isNotEmpty) {
         return GroupModel.fromFirestore(querySnapshot.docs.first);
+      } else {
+        return null;
       }
-      return null;
     } on FirebaseException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi tìm bằng mã nhóm');
+      throw handleException(e, 'Lỗi tìm bằng mã nhóm', 'group');
     } catch (e) {
-      throw AuthException('system', 'Lỗi tìm bằng mã nhóm: $e');
+      throw Exception('Lỗi tìm bằng mã nhóm: $e');
     }
   }
 
-  Future<bool> checkUserInGroup() async {
-    User? user = _auth.currentUser;
-    if (user == null) return false;
-
-    final userId = user.uid;
-    final groupsCollection = _firestore.collection('groups');
-
+  Future<void> joinGroup(String code, MemberModel member) async {
     try {
-      final querySnapshot = await groupsCollection
-          .where('members', arrayContains: {'userId': userId}).get();
-      return querySnapshot.docs.isNotEmpty;
+      final groupDoc = await _firestore
+          .collection('groups')
+          .where('code', isEqualTo: code)
+          .limit(1)
+          .get();
+      if (groupDoc.docs.isEmpty) {
+        throw FirebaseException(
+            plugin: 'firestore',
+            code: 'not-found',
+            message: 'Không tìm thấy nhóm với mã này');
+      }
+
+      final groupData = groupDoc.docs.first.data() as Map<String, dynamic>;
+      final members = groupData['members'] as List<dynamic>;
+      if (members.any((m) => m['id'] == member.id)) {
+        print(member.id);
+        throw FirebaseException(
+            plugin: 'firestore',
+            code: 'already-joined',
+            message: 'Bạn đã tham gia nhóm này rồi');
+      }
+
+      await _firestore.collection('groups').doc(groupDoc.docs.first.id).update({
+        'members': FieldValue.arrayUnion([member.toMap()]),
+        'memberCount': FieldValue.increment(1),
+      });
+      await _userRepository.saveLastAccessedGroupId(
+          member.id, groupDoc.docs.first.id);
     } on FirebaseException catch (e) {
-      throw FirebaseException(
-          plugin: e.plugin, message: e.message, code: e.code);
+      throw handleException(e, 'Lỗi tham gia nhóm', 'group');
     } catch (e) {
-      throw Exception(e.toString());
+      throw Exception('Lỗi tham gia nhóm: $e');
+    }
+  }
+
+  Future<List<GroupModel>> checkUserInGroup(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (!userDoc.exists) {
+        return [];
+      }
+
+      final userData = userDoc.data() as Map<String, dynamic>;
+      final lastAccessedGroupId = userData['lastAccessedGroupId'];
+
+      final groupsQuery = await _firestore
+          .collection('groups')
+          .where('members', arrayContains: {'id': userId}).get();
+
+      List<GroupModel> groups =
+          groupsQuery.docs.map((doc) => GroupModel.fromFirestore(doc)).toList();
+
+      if (lastAccessedGroupId != null) {
+        groups.sort((a, b) {
+          if (a.id == lastAccessedGroupId) return -1;
+          if (b.id == lastAccessedGroupId) return 1;
+          return 0;
+        });
+      }
+
+      return groups;
+    } on FirebaseException catch (e) {
+      throw handleException(e, 'Lỗi kiểm tra nhóm', 'group');
+    } catch (e) {
+      throw Exception('Lỗi kiểm tra nhóm: $e');
     }
   }
 }

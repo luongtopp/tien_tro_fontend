@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../models/group.dart';
+import '../../models/group_model.dart';
 
 abstract class GroupEvent extends Equatable {
   const GroupEvent();
@@ -12,12 +12,16 @@ abstract class GroupEvent extends Equatable {
 class FetchGroups extends GroupEvent {}
 
 class AddGroup extends GroupEvent {
-  final GroupModel group;
+  final String name;
+  final String description;
 
-  const AddGroup(this.group);
+  const AddGroup({
+    required this.name,
+    required this.description,
+  });
 
   @override
-  List<Object> get props => [group];
+  List<Object> get props => [name, description];
 }
 
 class UpdateGroup extends GroupEvent {
@@ -54,16 +58,17 @@ class FindGroupByCode extends GroupEvent {
   List<Object> get props => [code];
 }
 
-class CheckUserGroup extends GroupEvent {
-  final String userId;
-
-  const CheckUserGroup(this.userId);
-  @override
-  List<Object> get props => [userId];
-}
-
 class StreamGroups extends GroupEvent {
   const StreamGroups();
   @override
   List<Object> get props => [];
+}
+
+class JoinGroup extends GroupEvent {
+  final String code;
+
+  const JoinGroup(this.code);
+
+  @override
+  List<Object> get props => [code];
 }

@@ -30,6 +30,6 @@ AppBar appBarCustom({
     ),
     backgroundColor: AppColors.appbarColor,
     centerTitle: true,
-    title: Text(title, style: TextStyles.heading),
+    title: Text(title, style: AppTextStyles.heading),
   );
 }

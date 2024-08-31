@@ -43,50 +43,57 @@ Future<void> pickImage({
   required BuildContext context,
   required Function(File) onImagePicked,
 }) async {
-  final selectedOption =
-      await showCustomModalBottomSheet(context: context, buttons: <Widget>[
-    ButtonModalBottomSheet(
-      text: 'Máy ảnh',
-      width: double.infinity,
-      height: 70,
-      icon: Icons.camera_alt_rounded,
-      color: AppColors.primaryColor,
-      textStyle: TextStyles.filledButton,
-      borderRadius: 20,
-      onTap: () {
-        Navigator.pop(context, 1);
-      },
-    ),
-    const SizedBox(height: 15),
-    ButtonModalBottomSheet(
-      text: 'Thư viện',
-      width: double.infinity,
-      height: 70,
-      icon: Icons.photo_library_rounded,
-      color: AppColors.primaryColor,
-      textStyle: TextStyles.filledButton,
-      borderRadius: 20,
-      onTap: () {
-        Navigator.pop(context, 2);
-      },
-    )
-  ]);
+  final selectedOption = await showCustomModalBottomSheet(
+    context: context,
+    buttons: _buildImagePickerButtons(context),
+  );
 
   if (selectedOption == null) return;
 
-  final ImagePicker picker = ImagePicker();
-  XFile? pickedFile;
-
-  if (selectedOption == 1) {
-    pickedFile = await picker.pickImage(source: ImageSource.camera);
-  } else if (selectedOption == 2) {
-    pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  }
+  final ImageSource source =
+      selectedOption == 1 ? ImageSource.camera : ImageSource.gallery;
+  final XFile? pickedFile = await ImagePicker().pickImage(source: source);
 
   if (pickedFile != null) {
-    cropImage(
+    await cropImage(
       imageFile: File(pickedFile.path),
       onImageCropped: onImagePicked,
     );
   }
+}
+
+List<Widget> _buildImagePickerButtons(BuildContext context) {
+  return [
+    _buildButton(
+      context: context,
+      text: 'Máy ảnh',
+      icon: Icons.camera_alt_rounded,
+      option: 1,
+    ),
+    const SizedBox(height: 15),
+    _buildButton(
+      context: context,
+      text: 'Thư viện',
+      icon: Icons.photo_library_rounded,
+      option: 2,
+    ),
+  ];
+}
+
+Widget _buildButton({
+  required BuildContext context,
+  required String text,
+  required IconData icon,
+  required int option,
+}) {
+  return ButtonModalBottomSheet(
+    text: text,
+    width: double.infinity,
+    height: 260.h * 0.3,
+    icon: icon,
+    color: AppColors.primaryColor,
+    textStyle: AppTextStyles.filledButton,
+    borderRadius: 20.r,
+    onTap: () => Navigator.pop(context, option),
+  );
 }

@@ -22,7 +22,7 @@ void showCustomSnackBar(
         backgroundColor: AppColors.successColor,
         boxShadow: [],
         icon: const SizedBox(),
-        textStyle: TextStyles.notification,
+        textStyle: AppTextStyles.notification,
         message: message,
       );
       break;
@@ -31,7 +31,7 @@ void showCustomSnackBar(
         backgroundColor: AppColors.failedColor,
         boxShadow: [],
         icon: const SizedBox(),
-        textStyle: TextStyles.notification,
+        textStyle: AppTextStyles.notification,
         message: message,
       );
       break;
@@ -40,7 +40,7 @@ void showCustomSnackBar(
         backgroundColor: AppColors.errorColor,
         boxShadow: [],
         icon: const SizedBox(),
-        textStyle: TextStyles.notification,
+        textStyle: AppTextStyles.notification,
         message: message,
       );
       break;
@@ -49,7 +49,7 @@ void showCustomSnackBar(
         backgroundColor: AppColors.primaryColor,
         boxShadow: [],
         icon: const SizedBox(),
-        textStyle: TextStyles.notification,
+        textStyle: AppTextStyles.notification,
         message: message,
       );
       break;

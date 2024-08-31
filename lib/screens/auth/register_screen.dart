@@ -38,144 +38,78 @@ class _RegisterScreenState extends State<RegisterScreen> {
   File? _selectedImage;
 
   @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _handleRegisterState(BuildContext context, RegisterState state) {
+    LoadingOverlay.hide();
+    switch (state) {
+      case RegisterValidating():
+        LoadingOverlay.show(context);
+      case RegisterSuccess():
+        showCustomSnackBar(context, state.message, type: SnackBarType.success);
+        Navigator.pop(context);
+      case RegisterFailure():
+        showCustomSnackBar(context, state.error, type: SnackBarType.failed);
+      case RegisterError():
+        showCustomSnackBar(context, state.error, type: SnackBarType.error);
+      default:
+    }
+  }
+
+  void _handleImagePicked(File? croppedFile) {
+    setState(() {
+      _selectedImage = croppedFile;
+    });
+  }
+
+  void _submitRegistration() {
+    if (_formKey.currentState!.validate()) {
+      context.read<RegisterBloc>().add(
+            SubmitRegister(
+              username: _usernameController.text,
+              email: _emailController.text,
+              password: _passwordController.text,
+              file: _selectedImage,
+            ),
+          );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<RegisterBloc, RegisterState>(
-      listener: (context, state) {
-        switch (state) {
-          case RegisterValidating():
-            LoadingOverlay.show(context);
-            break;
-          case RegisterSuccess():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.message,
-                type: SnackBarType.success);
-            Navigator.pop(context);
-            break;
-          case RegisterFailure():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.failed);
-          case RegisterError():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.error);
-        }
-      },
+      listener: _handleRegisterState,
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: appBarCustom(context: context, title: 'Đăng ký'),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.only(left: 48.w, right: 48.w),
+              padding: EdgeInsets.symmetric(horizontal: 48.w),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
                     SizedBox(height: 20.h),
-                    CustomImagePicker(
-                      size: 75,
-                      onImagePicked: () => pickImage(
-                        context: context,
-                        onImagePicked: (croppedFile) {
-                          setState(() {
-                            _selectedImage = croppedFile;
-                          });
-                        },
-                      ),
-                      image: _selectedImage,
-                    ),
+                    _buildImagePicker(),
                     SizedBox(height: 51.h),
-                    CustomTextField(
-                      controller: _usernameController,
-                      hintText: 'Tên tài khoản',
-                      prefixIcon: Icons.person_rounded,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Tên tài khoản không được để trống';
-                        }
-                        if (!isValidUsername(value)) {
-                          return 'Tên tài khoản không hợp lệ. Vui lòng nhập từ 3 đến 30 ký tự, chỉ bao gồm chữ cái, số, dấu chấm (.) và dấu gạch dưới (_)';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildUsernameField(),
                     SizedBox(height: 24.h),
-                    CustomTextField(
-                      controller: _emailController,
-                      hintText: 'Email',
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: Icons.alternate_email_rounded,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Email không được để trống';
-                        }
-                        if (!isValidEmail(value)) {
-                          return 'Định dạng email không hợp lệ';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildEmailField(),
                     SizedBox(height: 24.h),
-                    CustomTextField(
-                      controller: _passwordController,
-                      keyboardType: TextInputType.visiblePassword,
-                      textInputAction: TextInputAction.done,
-                      hintText: 'Mật khẩu',
-                      prefixIcon: Icons.lock,
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Mật khẩu không được để trống';
-                        }
-                        if (!isValidPassword(value)) {
-                          return 'Mật khẩu phải dài ít nhất 8 ký tự và chứa ít nhất một chữ cái thường, chữ cái hoa, chữ số và ký tự đặc biệt (!@#\$&*~)';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildPasswordField(),
                     SizedBox(height: 24.h),
-                    CustomTextField(
-                      controller: _confirmPasswordController,
-                      keyboardType: TextInputType.visiblePassword,
-                      textInputAction: TextInputAction.done,
-                      hintText: 'Xác nhận mật khẩu',
-                      prefixIcon: Icons.lock,
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Mật khẩu không được để trống';
-                        }
-                        if (value != _passwordController.text) {
-                          return 'Mật khẩu xác thực không khớp';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildConfirmPasswordField(),
                     SizedBox(height: 43.h),
-                    CustomButton(
-                      text: 'Đăng ký',
-                      width: 288.h,
-                      height: 85.h,
-                      color: const Color(0xFF00618A),
-                      textStyle: TextStyles.filledButton,
-                      borderRadius: 67.w,
-                      onTap: () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<RegisterBloc>().add(
-                                SubmitRegister(
-                                    username: _usernameController.text,
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                    file: _selectedImage),
-                              );
-                        }
-                      },
-                    ),
+                    _buildRegisterButton(),
                     SizedBox(height: 21.h),
-                    buttonLoginGoogle(() {
-                      context.read<LoginBloc>().add(LoginWithGoogle());
-                    }),
+                    _buildGoogleLoginButton(),
                     SizedBox(height: 24.h),
                   ],
                 ),
@@ -185,5 +119,111 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildImagePicker() {
+    return CustomImagePicker(
+      size: 75,
+      onImagePicked: () => pickImage(
+        context: context,
+        onImagePicked: _handleImagePicked,
+      ),
+      image: _selectedImage,
+    );
+  }
+
+  Widget _buildUsernameField() {
+    return CustomTextField(
+      controller: _usernameController,
+      hintText: 'Tên tài khoản',
+      prefixIcon: Icons.person_rounded,
+      textInputAction: TextInputAction.next,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Tên tài khoản không được để trống';
+        }
+        if (!isValidUsername(value)) {
+          return 'Tên tài khoản không hợp lệ. Vui lòng nhập từ 3 đến 30 ký tự, chỉ bao gồm chữ cái, số, dấu chấm (.) và dấu gạch dưới (_)';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildEmailField() {
+    return CustomTextField(
+      controller: _emailController,
+      hintText: 'Email',
+      keyboardType: TextInputType.emailAddress,
+      prefixIcon: Icons.alternate_email_rounded,
+      textInputAction: TextInputAction.next,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Email không được để trống';
+        }
+        if (!isValidEmail(value)) {
+          return 'Định dạng email không hợp lệ';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return CustomTextField(
+      controller: _passwordController,
+      keyboardType: TextInputType.visiblePassword,
+      textInputAction: TextInputAction.next,
+      hintText: 'Mật khẩu',
+      prefixIcon: Icons.lock,
+      obscureText: true,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Mật khẩu không được để trống';
+        }
+        if (!isValidPassword(value)) {
+          return 'Mật khẩu phải dài ít nhất 8 ký tự và chứa ít nhất một chữ cái thường, chữ cái hoa, chữ số và ký tự đặc biệt (!@#\$&*~)';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return CustomTextField(
+      controller: _confirmPasswordController,
+      keyboardType: TextInputType.visiblePassword,
+      textInputAction: TextInputAction.done,
+      hintText: 'Xác nhận mật khẩu',
+      prefixIcon: Icons.lock,
+      obscureText: true,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Mật khẩu không được để trống';
+        }
+        if (value != _passwordController.text) {
+          return 'Mật khẩu xác thực không khớp';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildRegisterButton() {
+    return CustomButton(
+      text: 'Đăng ký',
+      width: 288.h,
+      height: 85.h,
+      color: const Color(0xFF00618A),
+      textStyle: AppTextStyles.filledButton,
+      borderRadius: 67.r,
+      onTap: _submitRegistration,
+    );
+  }
+
+  Widget _buildGoogleLoginButton() {
+    return buttonLoginGoogle(() {
+      context.read<LoginBloc>().add(LoginWithGoogle());
+    });
   }
 }

@@ -7,7 +7,7 @@ class UserModel {
   final String email;
   final String socialId;
   final String? bankAccount;
-
+  final String? lastAccessedGroupId;
   UserModel({
     required this.id,
     required this.fullName,
@@ -15,6 +15,7 @@ class UserModel {
     required this.email,
     required this.socialId,
     this.bankAccount,
+    this.lastAccessedGroupId,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -26,6 +27,7 @@ class UserModel {
       email: data['email'],
       socialId: data['socialId'],
       bankAccount: data['bankAccount'],
+      lastAccessedGroupId: data['lastAccessedGroupId'],
     );
   }
 
@@ -37,6 +39,7 @@ class UserModel {
       'email': email,
       'socialId': socialId,
       'bankAccount': bankAccount,
+      'lastAccessedGroupId': lastAccessedGroupId,
     };
   }
 
@@ -47,6 +50,7 @@ class UserModel {
     String? email,
     String? socialId,
     String? bankAccount,
+    String? lastAccessedGroupId,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -55,6 +59,7 @@ class UserModel {
       email: email ?? this.email,
       socialId: socialId ?? this.socialId,
       bankAccount: bankAccount ?? this.bankAccount,
+      lastAccessedGroupId: lastAccessedGroupId ?? this.lastAccessedGroupId,
     );
   }
 }

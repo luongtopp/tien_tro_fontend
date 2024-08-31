@@ -1,11 +1,9 @@
 import 'package:chia_se_tien_sinh_hoat_tro/blocs/register_bloc/register_states.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../exceptions/auth_exception.dart';
 import '../../repositories/auth_repository.dart';
 import '../../repositories/user_repository.dart';
-import '../../models/user.dart';
-import '../../utils/error_code_mapper.dart';
+import '../../models/user_model.dart';
 import 'register_events.dart';
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
@@ -47,11 +45,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       }
       emit(RegisterSuccess(
           'Một thư đã được gửi trong email. Nhấp vào liên kết để xác thực.'));
-    } on AuthException catch (e) {
-      emit(RegisterFailure(mapErrorCodeToMessage(e.code)));
+    } on FirebaseAuthException catch (e) {
+      emit(RegisterFailure(e.message ?? 'Đăng ký thất bại'));
       rethrow;
     } catch (e) {
-      emit(RegisterError('Đăng ký thất bại: ${e.toString()}'));
+      emit(RegisterError(e.toString()));
     }
   }
 
@@ -60,8 +58,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     try {
       await _userRepository.updateUser(event.user);
       emit(RegisterSuccess("Sửa tài khoản thất bại"));
+    } on FirebaseAuthException catch (e) {
+      emit(RegisterFailure(e.message ?? 'Đăng ký thất bại'));
+      rethrow;
     } catch (e) {
-      emit(RegisterError('Cập nhật tài khoản thất bại: ${e.toString()}'));
+      emit(RegisterError(e.toString()));
     }
   }
 
@@ -70,8 +71,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     try {
       await _userRepository.deleteUser(event.userId);
       emit(RegisterSuccess("Xóa tài khoản thành công"));
+    } on FirebaseAuthException catch (e) {
+      emit(RegisterFailure(e.message ?? 'Đăng ký thất bại'));
+      rethrow;
     } catch (e) {
-      emit(RegisterError('Xóa tài khoản thất bại: ${e.toString()}'));
+      emit(RegisterError(e.toString()));
     }
   }
 
@@ -80,8 +84,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     try {
       await _userRepository.deleteUser(event.userId);
       emit(RegisterSuccess("Tìm tài khoản thành công"));
+    } on FirebaseAuthException catch (e) {
+      emit(RegisterFailure(e.message ?? 'Đăng ký thất bại'));
+      rethrow;
     } catch (e) {
-      emit(RegisterError('Tìm tài khoản thất bại: ${e.toString()}'));
+      emit(RegisterError(e.toString()));
     }
   }
 }

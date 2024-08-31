@@ -1,4 +1,4 @@
-import 'package:chia_se_tien_sinh_hoat_tro/models/group.dart';
+import 'package:chia_se_tien_sinh_hoat_tro/models/group_model.dart';
 
 abstract class GroupState {}
 
@@ -32,7 +32,8 @@ class GroupNotification extends GroupState {
 }
 
 class UserHasGroups extends GroupState {
-  UserHasGroups();
+  final GroupModel group;
+  UserHasGroups(this.group);
 }
 
 class UserHasNoGroups extends GroupState {

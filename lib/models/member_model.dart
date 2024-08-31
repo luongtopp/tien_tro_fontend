@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Member {
+class MemberModel {
   final String id;
   final String name;
   final String? avatar;
@@ -12,7 +12,7 @@ class Member {
   final String role;
   final String? bankAccountInfo;
 
-  Member({
+  MemberModel({
     required this.id,
     required this.name,
     this.avatar,
@@ -25,9 +25,10 @@ class Member {
     this.bankAccountInfo,
   });
 
-  factory Member.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory MemberModel.fromFirestore(
+      DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data();
-    return Member(
+    return MemberModel(
       id: doc.id,
       name: data?['name'] ?? '',
       avatar: data?['avatar'],
@@ -42,23 +43,25 @@ class Member {
     );
   }
 
-  factory Member.fromMap(Map<String, dynamic> map) {
-    return Member(
-      id: map['id'],
-      name: map['name'],
+  factory MemberModel.fromMap(Map<String, dynamic> map) {
+    return MemberModel(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
       avatar: map['avatar'],
       description: map['description'],
-      totalExpenseAmount: map['totalExpenseAmount'].toDouble(),
-      balance: map['balance'].toDouble(),
-      isIdentified: map['isIdentified'],
+      totalExpenseAmount:
+          (map['totalExpenseAmount'] as num?)?.toDouble() ?? 0.0,
+      balance: (map['balance'] as num?)?.toDouble() ?? 0.0,
+      isIdentified: map['isIdentified'] ?? false,
       userAuthId: map['userAuthId'],
-      role: map['role'],
+      role: map['role'] ?? '',
       bankAccountInfo: map['bankAccountInfo'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'avatar': avatar,
       'description': description,
@@ -71,7 +74,7 @@ class Member {
     };
   }
 
-  Member copyWith({
+  MemberModel copyWith({
     String? id,
     String? name,
     String? avatar,
@@ -83,7 +86,7 @@ class Member {
     String? role,
     String? bankAccountInfo,
   }) {
-    return Member(
+    return MemberModel(
       id: id ?? this.id,
       name: name ?? this.name,
       avatar: avatar ?? this.avatar,

@@ -1,67 +1,67 @@
 import 'package:chia_se_tien_sinh_hoat_tro/config/app_color.dart';
 import 'package:flutter/material.dart';
 
-class TextStyles {
-  static const TextStyle heading = TextStyle(
+class AppTextStyles {
+  static TextStyle heading = const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: Color(0xFF4C4C4C),
   );
-  static const TextStyle headingDrawer = TextStyle(
+  static TextStyle headingDrawer = const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: Color(0xFFFFFFFF),
   );
 
-  static const TextStyle subheading = TextStyle(
+  static TextStyle subheading = const TextStyle(
     fontSize: 14.0,
     fontWeight: FontWeight.w600,
     color: Color.fromARGB(255, 2, 54, 79),
   );
 
-  static const TextStyle titleStyle = TextStyle(
+  static TextStyle titleStyle = const TextStyle(
     fontSize: 18.0,
     fontWeight: FontWeight.bold,
     color: Color(0xFF00618A),
   );
 
-  static const TextStyle subtitleStyle = TextStyle(
+  static TextStyle subtitleStyle = const TextStyle(
     fontSize: 14.0,
     fontWeight: FontWeight.w400,
     color: Color(0xFF005E86),
   );
-  static const TextStyle body = TextStyle(
+  static TextStyle body = const TextStyle(
     fontSize: 14.0,
     fontWeight: FontWeight.normal,
     color: Colors.grey,
   );
-  static const TextStyle filledButton = TextStyle(
+  static TextStyle filledButton = const TextStyle(
     fontSize: 20.0,
     fontWeight: FontWeight.w400,
     color: Colors.white,
   );
-  static const TextStyle outlinedButton = TextStyle(
+  static TextStyle outlinedButton = const TextStyle(
     fontSize: 20.0,
     fontWeight: FontWeight.w400,
     color: AppColors.primaryColor,
   );
-  static const TextStyle textButton = TextStyle(
+  static TextStyle textButton = const TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.normal,
     color: AppColors.primaryColor,
   );
 
-  static const TextStyle textItemDrawer = TextStyle(
+  static TextStyle textItemDrawer = const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: Color(0xFFFFFFFF),
   );
-  static const TextStyle textItemDrawerNoSelected = TextStyle(
+  static TextStyle textItemDrawerNoSelected = const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.primaryColor,
   );
-  static const TextStyle notification = TextStyle(
+  static TextStyle notification = const TextStyle(
     fontSize: 14.0,
     fontWeight: FontWeight.w400,
     color: Color(0xFFFFFFFF),

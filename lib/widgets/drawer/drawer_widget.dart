@@ -11,7 +11,7 @@ Widget accountHeader(String imageUrl, String userName) {
     height: 60,
     padding: EdgeInsets.only(left: 15.w, right: 15.w),
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(15.w),
+      borderRadius: BorderRadius.circular(15.r),
       border: Border.all(color: AppColors.borderImageColor, width: 1.5),
     ),
     child: Row(
@@ -32,7 +32,7 @@ Widget accountHeader(String imageUrl, String userName) {
         Expanded(
           child: Text(
             userName,
-            style: TextStyles.headingDrawer,
+            style: AppTextStyles.headingDrawer,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
@@ -51,8 +51,8 @@ void showBottomSheetCustom(BuildContext context) {
         width: double.infinity,
         height: 70,
         color: AppColors.primaryColor,
-        textStyle: TextStyles.filledButton,
-        borderRadius: 20,
+        textStyle: AppTextStyles.filledButton,
+        borderRadius: 20.r,
         onTap: () {
           Navigator.pop(context, 1);
         },
@@ -63,8 +63,8 @@ void showBottomSheetCustom(BuildContext context) {
         width: double.infinity,
         height: 70,
         color: AppColors.buttonOutLineColor,
-        textStyle: TextStyles.outlinedButton,
-        borderRadius: 20,
+        textStyle: AppTextStyles.outlinedButton,
+        borderRadius: 20.r,
         isBorder: true,
         onTap: () {
           Navigator.pop(context, 2);

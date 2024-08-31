@@ -1,7 +1,6 @@
-import 'package:chia_se_tien_sinh_hoat_tro/exceptions/auth_exception.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../models/user.dart';
+import '../exceptions/firebase_exception.dart';
+import '../models/user_model.dart';
 
 class UserRepository {
   final FirebaseFirestore _firestore;
@@ -13,10 +12,8 @@ class UserRepository {
   Future<void> createUser(UserModel user) async {
     try {
       await _firestore.collection('users').doc(user.id).set(user.toMap());
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi tạo tài khoản');
     } catch (e) {
-      throw AuthException('system', 'Lỗi tạo tài khoản: $e');
+      throw handleException(e, 'Lỗi tạo tài khoản', 'user');
     }
   }
 
@@ -24,10 +21,8 @@ class UserRepository {
   Future<void> updateUser(UserModel user) async {
     try {
       await _firestore.collection('users').doc(user.id).update(user.toMap());
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi sửa tài khoản');
     } catch (e) {
-      throw AuthException('system', 'Lỗi tạo tài khoản: $e');
+      throw handleException(e, 'Lỗi sửa tài khoản', 'user');
     }
   }
 
@@ -35,10 +30,8 @@ class UserRepository {
   Future<void> deleteUser(String userId) async {
     try {
       await _firestore.collection('users').doc(userId).delete();
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi xóa tài khoản');
     } catch (e) {
-      throw AuthException('system', 'Lỗi xóa tài khoản: $e');
+      throw handleException(e, 'Lỗi xóa tài khoản', 'user');
     }
   }
 
@@ -51,10 +44,32 @@ class UserRepository {
         return UserModel.fromFirestore(doc);
       }
       return null;
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code, e.message ?? 'Lỗi tìm nạp tài khoản');
     } catch (e) {
-      throw AuthException('system', 'Lỗi tìm nạp tài khoản: $e');
+      throw handleException(e, 'Lỗi tìm nạp tài khoản', 'user');
+    }
+  }
+
+  Future<String?> getLastAccessedGroupId(String userId) async {
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        return doc['lastAccessedGroupId'];
+      }
+      return null;
+    } catch (e) {
+      throw handleException(e, 'Lỗi tìm nạp mã nhóm cuối cùng', 'user');
+    }
+  }
+
+  Future<void> saveLastAccessedGroupId(String userId, String groupId) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .update({'lastAccessedGroupId': groupId});
+    } catch (e) {
+      throw handleException(e, 'Lỗi lưu mã nhóm cuối cùng', 'user');
     }
   }
 }

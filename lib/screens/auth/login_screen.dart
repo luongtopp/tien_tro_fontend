@@ -28,119 +28,79 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleLoginState(BuildContext context, LoginState state) {
+    switch (state) {
+      case LoginValidating():
+        LoadingOverlay.show(context);
+        break;
+      case LoginSuccess():
+        LoadingOverlay.hide();
+        Navigator.of(context).pushReplacementNamed(
+          AppRoutes.ZOOM_DRAWER_SCREEN,
+          arguments: [state.groups, state.user],
+        );
+        break;
+      case LoginFailure():
+        LoadingOverlay.hide();
+        showCustomSnackBar(context, state.error, type: SnackBarType.failed);
+        break;
+      case LoginError():
+        LoadingOverlay.hide();
+        showCustomSnackBar(context, state.error, type: SnackBarType.error);
+        break;
+      case LoginOutSuccess():
+        LoadingOverlay.hide();
+        break;
+      default:
+        LoadingOverlay.hide();
+        break;
+    }
+  }
+
+  void _submitLogin() {
+    if (_formKey.currentState!.validate()) {
+      context.read<LoginBloc>().add(
+            SubmitLogin(
+              email: _emailController.text,
+              password: _passwordController.text.trim(),
+            ),
+          );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<LoginBloc, LoginState>(
-      listener: (context, state) {
-        switch (state) {
-          case LoginValidating():
-            LoadingOverlay.show(context);
-            break;
-          case LoginSuccess():
-            LoadingOverlay.hide();
-            Navigator.of(context).popAndPushNamed(AppRoutes.ZOOM_DRAWER_SCREEN);
-            break;
-          case LoginFailure():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.failed);
-          case LoginError():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.error);
-          case LoginOutSuccess():
-            LoadingOverlay.hide();
-        }
-      },
+      listener: _handleLoginState,
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         body: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(left: 48.w, right: 48.w),
+            padding: EdgeInsets.symmetric(horizontal: 48.w),
             child: Form(
               key: _formKey,
               child: Column(
                 children: [
                   SizedBox(height: 89.h),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      width: 238.w,
-                      height: 236.h,
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/logo.png'),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildLogo(),
                   SizedBox(height: 51.h),
-                  CustomTextField(
-                    controller: _emailController,
-                    hintText: 'Email',
-                    textInputAction: TextInputAction.next,
-                    prefixIcon: Icons.alternate_email_rounded,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email không được để trống';
-                      }
-                      if (!isValidEmail(value)) {
-                        return 'Định dạng email không hợp lệ';
-                      }
-                      return null;
-                    },
-                  ),
+                  _buildEmailField(),
                   SizedBox(height: 24.h),
-                  CustomTextField(
-                    controller: _passwordController,
-                    keyboardType: TextInputType.visiblePassword,
-                    hintText: 'Mật khẩu',
-                    prefixIcon: Icons.lock,
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Mật khẩu không được để trống';
-                      }
-                      return null;
-                    },
-                  ),
+                  _buildPasswordField(),
                   SizedBox(height: 43.h),
-                  Container(
-                    alignment: Alignment.centerRight,
-                    width: 333.w,
-                    child: textButton(
-                      text: 'Quên mật khẩu?',
-                      onTap: () {
-                        Navigator.of(context)
-                            .pushNamed(AppRoutes.FORGOT_PASSWORD);
-                      },
-                    ),
-                  ),
+                  _buildForgotPasswordButton(),
                   SizedBox(height: 46.h),
-                  CustomButton(
-                    text: 'Đăng Nhập',
-                    width: 288.h,
-                    height: 85.h,
-                    color: AppColors.primaryColor,
-                    textStyle: TextStyles.filledButton,
-                    borderRadius: 67.w,
-                    onTap: () {
-                      if (_formKey.currentState!.validate()) {
-                        context.read<LoginBloc>().add(
-                              SubmitLogin(
-                                email: _emailController.text,
-                                password: _passwordController.text.trim(),
-                              ),
-                            );
-                      }
-                    },
-                  ),
+                  _buildLoginButton(),
                   SizedBox(height: 21.h),
-                  buttonLoginGoogle(() {
-                    context.read<LoginBloc>().add(LoginWithGoogle());
-                  }),
+                  _buildGoogleLoginButton(),
                   SizedBox(height: 24.h),
-                  textButtonSignUp(() {
-                    Navigator.of(context).pushNamed(AppRoutes.REGISTER);
-                  }),
+                  _buildSignUpButton(),
                   SizedBox(height: 24.h),
                 ],
               ),
@@ -149,5 +109,90 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildLogo() {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        width: 238.w,
+        height: 236.h,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/logo.png'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmailField() {
+    return CustomTextField(
+      controller: _emailController,
+      hintText: 'Email',
+      textInputAction: TextInputAction.next,
+      prefixIcon: Icons.alternate_email_rounded,
+      keyboardType: TextInputType.emailAddress,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Email không được để trống';
+        }
+        if (!isValidEmail(value)) {
+          return 'Định dạng email không hợp lệ';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return CustomTextField(
+      controller: _passwordController,
+      keyboardType: TextInputType.visiblePassword,
+      hintText: 'Mật khẩu',
+      prefixIcon: Icons.lock,
+      obscureText: true,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Mật khẩu không được để trống';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildForgotPasswordButton() {
+    return Container(
+      alignment: Alignment.centerRight,
+      width: 333.w,
+      child: textButton(
+        text: 'Quên mật khẩu?',
+        onTap: () => Navigator.of(context).pushNamed(AppRoutes.FORGOT_PASSWORD),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return CustomButton(
+      text: 'Đăng Nhập',
+      width: 288.h,
+      height: 85.h,
+      color: AppColors.primaryColor,
+      textStyle: AppTextStyles.filledButton,
+      borderRadius: 67.r,
+      onTap: _submitLogin,
+    );
+  }
+
+  Widget _buildGoogleLoginButton() {
+    return buttonLoginGoogle(() {
+      context.read<LoginBloc>().add(LoginWithGoogle());
+    });
+  }
+
+  Widget _buildSignUpButton() {
+    return textButtonSignUp(() {
+      Navigator.of(context).pushNamed(AppRoutes.REGISTER);
+    });
   }
 }

@@ -6,12 +6,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../blocs/login_bloc/login_blocs.dart';
 import '../../blocs/login_bloc/login_events.dart';
 import '../../config/text_styles.dart';
+import '../../models/group_model.dart';
+import '../../models/user_model.dart';
 import '../../routes/app_route.dart';
 import '../../widgets/dialogs/dialog_custom.dart';
 import '../../widgets/drawer/drawer_widget.dart';
 
 class MainDrawer extends StatelessWidget {
-  const MainDrawer({super.key});
+  final List<GroupModel> groups;
+  final UserModel user;
+  const MainDrawer({super.key, required this.groups, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -29,17 +33,18 @@ class MainDrawer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     accountHeader(
-                        'https://firebasestorage.googleapis.com/v0/b/chia-se-tien-sinh-hoat-t-97a1b.appspot.com/o/avatars%2Fperson_money.png?alt=media&token=3e5be910-1f00-4278-aeba-36aca4af3928',
-                        'Trần Đức Lương'),
+                        user.imageUrl ??
+                            'https://firebasestorage.googleapis.com/v0/b/chia-se-tien-sinh-hoat-t-97a1b.appspot.com/o/avatars%2Fperson_money.png?alt=media&token=3e5be910-1f00-4278-aeba-36aca4af3928',
+                        user.fullName)
                   ],
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.group_rounded,
                     color: AppColors.iconDrawerColor),
-                title: const Text(
+                title: Text(
                   'Nhóm',
-                  style: TextStyles.textItemDrawer,
+                  style: AppTextStyles.textItemDrawer,
                   maxLines: 1,
                 ),
                 trailing: const Icon(
@@ -63,9 +68,9 @@ class MainDrawer extends StatelessWidget {
                           spreadRadius: 2,
                         ),
                       ],
-                      borderRadius: BorderRadius.circular(15)),
+                      borderRadius: BorderRadius.circular(15.r)),
                   child: ListView.builder(
-                    itemCount: 10, // Số lượng phần tử trong ListView
+                    itemCount: groups.length, // Số lượng phần tử trong ListView
                     itemBuilder: (context, index) {
                       return Card(
                         color: index % 10 == 0
@@ -73,10 +78,10 @@ class MainDrawer extends StatelessWidget {
                             : Colors.white,
                         child: ListTile(
                           title: Text(
-                            'One-line ListTile',
+                            groups[index].name,
                             style: index % 10 == 0
-                                ? TextStyles.textItemDrawer
-                                : TextStyles.textItemDrawerNoSelected,
+                                ? AppTextStyles.textItemDrawer
+                                : AppTextStyles.textItemDrawerNoSelected,
                           ),
                         ),
                       );
@@ -90,9 +95,9 @@ class MainDrawer extends StatelessWidget {
                   Icons.logout_rounded,
                   color: AppColors.iconDrawerColor,
                 ),
-                title: const Text(
+                title: Text(
                   'Đăng xuất',
-                  style: TextStyles.textItemDrawer,
+                  style: AppTextStyles.textItemDrawer,
                 ),
                 onTap: () {
                   showDialogCustom(

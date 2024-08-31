@@ -1,3 +1,6 @@
+import '../../models/group_model.dart';
+import '../../models/user_model.dart';
+
 abstract class LoginState {}
 
 class LoginInitial extends LoginState {}
@@ -6,7 +9,9 @@ class LoginValidating extends LoginState {}
 
 class LoginSuccess extends LoginState {
   final String message;
-  LoginSuccess(this.message);
+  final List<GroupModel>? groups;
+  final UserModel? user;
+  LoginSuccess(this.message, this.groups, this.user);
 }
 
 class LoginFailure extends LoginState {
