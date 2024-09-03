@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../config/app_color.dart';
-import '../../config/text_styles.dart';
-import '../../routes/app_route.dart';
-import '../../widgets/buttons/custom_button.dart';
+import '../../../config/app_color.dart';
+import '../../../config/text_styles.dart';
+import '../../../routes/app_route.dart';
+import '../../../widgets/buttons/custom_button.dart';
 
 class GroupScreen extends StatelessWidget {
   const GroupScreen({Key? key}) : super(key: key);

@@ -45,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
           AppRoutes.ZOOM_DRAWER_SCREEN,
           arguments: [state.groups, state.user],
         );
+
         break;
       case LoginFailure():
         LoadingOverlay.hide();

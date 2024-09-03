@@ -3,10 +3,10 @@ import 'package:chia_se_tien_sinh_hoat_tro/screens/auth/login_screen.dart';
 import 'package:chia_se_tien_sinh_hoat_tro/screens/auth/register_screen.dart';
 import 'package:chia_se_tien_sinh_hoat_tro/screens/onboarding/onboarding_screen.dart';
 import 'package:flutter/material.dart';
-import '../screens/group/create_group_screen.dart';
-import '../screens/group/group_screen.dart';
-import '../screens/group/join_group_screen.dart';
-import '../screens/home/zoom_drawer_screen.dart';
+import '../screens/application/group/create_group_screen.dart';
+import '../screens/application/group/group_screen.dart';
+import '../screens/application/group/join_group_screen.dart';
+import '../screens/application/home/zoom_drawer_screen.dart';
 import 'app_route.dart';
 
 class AppPages {

@@ -34,7 +34,18 @@ class AuthRepository {
 
       final userCredential =
           await _firebaseAuth.signInWithCredential(credential);
-      return userCredential.user;
+      final user = userCredential.user;
+      if (user != null) {
+        if (!user.emailVerified) {
+          throw FirebaseAuthException(
+            message: 'Tài khoản chưa được xác thực',
+            code: 'email-not-verified',
+          );
+        }
+        return user;
+      } else {
+        throw Exception('Lỗi khi đăng nhập');
+      }
     } on FirebaseAuthException catch (e) {
       throw handleAuthException(e, 'Lỗi đăng nhập Google');
     } catch (e) {
@@ -44,23 +55,52 @@ class AuthRepository {
     }
   }
 
+  Future<User?> loginWithEmailPassword(
+      {required String email, required String password}) async {
+    try {
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+      final user = userCredential.user;
+      if (user != null) {
+        if (!user.emailVerified) {
+          throw FirebaseAuthException(
+            message: 'Tài khoản chưa được xác thực',
+            code: 'email-not-verified',
+          );
+        }
+        return user;
+      } else {
+        throw Exception('Lỗi khi đăng nhập');
+      }
+    } on FirebaseAuthException catch (e) {
+      throw handleAuthException(e, 'Lỗi đăng nhập không xác định');
+    } catch (e) {
+      throw Exception(
+        'Lỗi khi đăng nhập: $e',
+      );
+    }
+  }
+
   Future<User?> registerWithEmailPassword(
-      String email, String password, String fullName, File? imageFile) async {
+      {required String email,
+      required String password,
+      required String fullName,
+      File? imageFile}) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
       final user = userCredential.user;
       if (user != null) {
         await user.sendEmailVerification();
-        final photoURL = imageFile != null
-            ? await _uploadImage(imageFile)
-            : "https://firebasestorage.googleapis.com/v0/b/chia-se-tien-sinh-hoat-t-97a1b.appspot.com/o/avatars%2Fperson_money.png?alt=media&token=3e5be910-1f00-4278-aeba-36aca4af3928";
+        final photoURL =
+            imageFile != null ? await _uploadImage(imageFile) : null;
         await _updateUserProfile(user, fullName, photoURL);
         return _firebaseAuth.currentUser;
+      } else {
+        throw Exception('Lỗi khi đăng ký tài khoản');
       }
-      return null;
     } on FirebaseAuthException catch (e) {
-      throw handleAuthException(e, 'Lỗi đăng ký không xác định');
+      throw handleAuthException(e, 'Lỗi đăng ký tài khoản không xác định');
     } catch (e) {
       throw Exception(
         'Lỗi khi đăng ký tài khoản: $e',
@@ -68,10 +108,41 @@ class AuthRepository {
     }
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw handleAuthException(e, 'Lỗi gửi email đặt lại mật khẩu');
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await Future.wait([_googleSignIn.signOut(), _firebaseAuth.signOut()]);
+    } catch (e) {
+      throw Exception(
+        'Lỗi khi đăng xuất: $e',
+      );
+    }
+  }
+
+  Future<User?> getCurrentUser() async {
+    try {
+      return _firebaseAuth.currentUser;
+    } catch (e) {
+      throw Exception(
+        'Lỗi khi lấy thông tin tài khoản hiện tại: $e',
+      );
+    }
+  }
+
   Future<void> _updateUserProfile(
       User user, String fullName, String? photoURL) async {
     try {
-      await user.updateProfile(displayName: fullName, photoURL: photoURL);
+      await user.updateProfile(
+          displayName: fullName,
+          photoURL: photoURL ??
+              'https://firebasestorage.googleapis.com/v0/b/chia-se-tien-sinh-hoat-t-97a1b.appspot.com/o/avatars%2Fperson_money.png?alt=media&token=3e5be910-1f00-4278-aeba-36aca4af3928');
       await user.reload();
     } on FirebaseAuthException catch (e) {
       throw handleAuthException(e, 'Lỗi cập nhật hồ sơ không xác định');
@@ -92,46 +163,6 @@ class AuthRepository {
     } catch (e) {
       throw Exception(
         'Không thể tải lên ảnh: $e',
-      );
-    }
-  }
-
-  Future<User?> loginWithEmailPassword(String email, String password) async {
-    try {
-      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
-      if (!userCredential.user!.emailVerified) {
-        throw FirebaseAuthException(
-          message: 'Tài khoản chưa được xác thực',
-          code: 'email-not-verified',
-        );
-      }
-      return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      throw handleAuthException(e, 'Lỗi đăng nhập không xác định');
-    } catch (e) {
-      throw Exception(
-        'Lỗi khi đăng nhập: $e',
-      );
-    }
-  }
-
-  Future<void> logout() async {
-    try {
-      await Future.wait([_googleSignIn.signOut(), _firebaseAuth.signOut()]);
-    } catch (e) {
-      throw Exception(
-        'Lỗi khi đăng xuất: $e',
-      );
-    }
-  }
-
-  Future<User?> getCurrentUser() async {
-    try {
-      return _firebaseAuth.currentUser;
-    } catch (e) {
-      throw Exception(
-        'Lỗi khi lấy thông tin tài khoản hiện tại: $e',
       );
     }
   }

@@ -2,31 +2,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 FirebaseException handleException(
     dynamic e, String defaultMessage, String plugin) {
-  if (e is FirebaseException) {
-    return FirebaseException(
-      plugin: plugin,
-      code: e.code,
-      message: _translateFirebaseError(e.code) ?? defaultMessage,
-    );
-  }
   return FirebaseException(
     plugin: plugin,
-    code: 'unknown',
-    message: '$defaultMessage: $e',
+    code: e.code,
+    message: _translateFirebaseError(e.code) ?? defaultMessage,
   );
 }
 
 FirebaseAuthException handleAuthException(dynamic e, String defaultMessage) {
-  if (e is FirebaseAuthException) {
-    print(e.code);
-    return FirebaseAuthException(
-      code: e.code,
-      message: _translateFirebaseAuthError(e.code) ?? defaultMessage,
-    );
-  }
   return FirebaseAuthException(
-    code: 'unknown',
-    message: '$defaultMessage: $e',
+    code: e.code,
+    message: _translateFirebaseAuthError(e.code) ?? defaultMessage,
   );
 }
 
@@ -44,7 +30,6 @@ String? _translateFirebaseError(String code) {
       return 'Thông tin đăng nhập không hợp lệ';
     case 'not-found':
       return 'Không tìm thấy';
-
     case 'network-request-failed':
       return 'Yêu cầu mạng thất bại';
     case 'operation-cancelled':
@@ -65,8 +50,7 @@ String? _translateFirebaseError(String code) {
       return 'Chức năng chưa được triển khai';
     case 'internal':
       return 'Lỗi nội bộ hệ thống';
-    case 'unavailable':
-      return 'Dịch vụ không khả dụng';
+
     case 'data-stale':
       return 'Dữ liệu đã cũ';
     case 'unauthenticated':

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'blocs/app_bloc_providers.dart';
 import 'config/app_theme.dart';
@@ -13,9 +14,9 @@ void main() async {
 }
 
 // Uncomment this function if needed for debugging
-// void setSlowAnimations() {
-//   timeDilation = 10;
-// }
+void setSlowAnimations() {
+  timeDilation = 30;
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

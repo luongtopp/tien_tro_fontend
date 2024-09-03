@@ -72,4 +72,17 @@ class UserRepository {
       throw handleException(e, 'Lỗi lưu mã nhóm cuối cùng', 'user');
     }
   }
+
+  Future<bool> checkUserHasGroup(String userId) async {
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        return doc['hasGroup'];
+      }
+      return false;
+    } catch (e) {
+      throw handleException(e, 'Lỗi kiểm tra nhóm', 'user');
+    }
+  }
 }

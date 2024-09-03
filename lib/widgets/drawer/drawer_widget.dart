@@ -42,7 +42,7 @@ Widget accountHeader(String imageUrl, String userName) {
   );
 }
 
-void showBottomSheetCustom(BuildContext context) {
+void showBottomSheetCustom(BuildContext context, {Function(int)? onButtonTap}) {
   showCustomModalBottomSheet(
     context: context,
     buttons: <Widget>[
@@ -54,7 +54,8 @@ void showBottomSheetCustom(BuildContext context) {
         textStyle: AppTextStyles.filledButton,
         borderRadius: 20.r,
         onTap: () {
-          Navigator.pop(context, 1);
+          Navigator.pop(context);
+          if (onButtonTap != null) onButtonTap(1);
         },
       ),
       const SizedBox(height: 15),
@@ -67,7 +68,8 @@ void showBottomSheetCustom(BuildContext context) {
         borderRadius: 20.r,
         isBorder: true,
         onTap: () {
-          Navigator.pop(context, 2);
+          Navigator.pop(context);
+          if (onButtonTap != null) onButtonTap(2);
         },
       )
     ],

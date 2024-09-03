@@ -6,32 +6,45 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/group_model.dart';
 import '../../models/member_model.dart';
 import '../../repositories/group_repository.dart';
+import '../../repositories/user_repository.dart';
 import 'group_event.dart';
 import 'group_state.dart';
 
 class GroupBloc extends Bloc<GroupEvent, GroupState> {
   final GroupRepository _groupRepository;
+  final UserRepository _userRepository;
   StreamSubscription<List<GroupModel>>? _groupsSubscription;
 
-  GroupBloc({required GroupRepository groupRepository})
-      : _groupRepository = groupRepository,
+  GroupBloc({
+    required GroupRepository groupRepository,
+    required UserRepository userRepository,
+  })  : _groupRepository = groupRepository,
+        _userRepository = userRepository,
         super(GroupInitial()) {
     on<AddGroup>(_onAddGroup);
+    on<JoinGroup>(_onJoinGroup);
     on<UpdateGroup>(_onUpdateGroup);
     on<DeleteGroup>(_onDeleteGroup);
     on<FindGroup>(_onFindGroupById);
     on<FindGroupByCode>(_onFindGroupByCode);
-    on<JoinGroup>(_onJoinGroup);
+    on<GetGroupById>(_onGetGroupById);
   }
+  @override
+  Future<void> close() {
+    _groupsSubscription?.cancel();
+    return super.close();
+  }
+
   Future<void> _onAddGroup(AddGroup event, Emitter<GroupState> emit) async {
     emit(GroupValidating());
     try {
-      final User? currentUser = FirebaseAuth.instance.currentUser;
+      final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
         throw Exception('Không tìm thấy người dùng hiện tại');
       }
-      String code = await _generateUniqueGroupCode();
-      GroupModel newGroup = GroupModel(
+
+      final code = await _generateUniqueGroupCode();
+      final newGroup = GroupModel(
         name: event.name,
         description: event.description,
         code: code,
@@ -51,18 +64,61 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
             isIdentified: true,
             userAuthId: currentUser.uid,
             role: 'owner',
+            lastAccessDate: DateTime.now(),
           )
         ],
         ownerId: currentUser.uid,
         memberCount: 1,
       );
-      await _groupRepository.createGroup(newGroup);
 
-      emit(GroupSuccess("Tạo nhóm thành công"));
+      await _groupRepository.createGroup(newGroup);
+      emit(CreateGroupSuccess(
+        "Tạo nhóm thành công",
+        await _groupRepository.checkUserInGroup(currentUser.uid),
+        (await _userRepository.getUserById(currentUser.uid))!,
+      ));
+      emit(GroupByIdLoaded(newGroup));
     } on FirebaseException catch (e) {
       emit(GroupFailure(e.message ?? 'Lỗi khi tạo nhóm'));
     } catch (e) {
       emit(GroupError('Tạo nhóm thất bại: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onJoinGroup(JoinGroup event, Emitter<GroupState> emit) async {
+    emit(GroupValidating());
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('Không tìm thấy người dùng hiện tại');
+      }
+
+      final member = MemberModel(
+        id: currentUser.uid,
+        name: currentUser.displayName ?? '',
+        avatar: currentUser.photoURL,
+        totalExpenseAmount: 0.0,
+        balance: 0.0,
+        isIdentified: true,
+        userAuthId: currentUser.uid,
+        role: 'member',
+        lastAccessDate: DateTime.now(),
+      );
+
+      await _groupRepository.joinGroup(event.code, member);
+      final group = await _groupRepository.getGroupByCode(event.code);
+      emit(GroupByIdLoaded(group!));
+      emit(
+        JoinGroupSuccess(
+          "Tham gia nhóm thành công",
+          await _groupRepository.checkUserInGroup(currentUser.uid),
+          (await _userRepository.getUserById(currentUser.uid))!,
+        ),
+      );
+    } on FirebaseException catch (e) {
+      emit(GroupFailure(e.message ?? 'Lỗi tham gia nhóm'));
+    } catch (e) {
+      emit(GroupError(e.toString()));
     }
   }
 
@@ -119,61 +175,28 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     }
   }
 
-  void _onStreamGroups(StreamGroups event, Emitter<GroupState> emit) {
-    _groupsSubscription?.cancel();
-    _groupsSubscription = _groupRepository.streamGroups().listen(
-      (groups) {
-        emit(GroupsLoaded(groups));
-      },
-      onError: (error) {
-        emit(GroupError('Lỗi khi stream các nhóm: $error'));
-      },
-    );
-  }
-
   Future<String> _generateUniqueGroupCode() async {
     String code;
     do {
-      code = _generateRandomCode();
-    } while (await _isCodeTaken(code));
-
+      code = List.generate(6, (_) => Random().nextInt(10)).join();
+    } while (await _groupRepository.getGroupByCode(code) != null);
     return code;
   }
 
-  String _generateRandomCode() {
-    final random = Random();
-    return List.generate(6, (_) => random.nextInt(10)).join();
-  }
-
-  Future<bool> _isCodeTaken(String code) async {
-    final result = await _groupRepository.getGroupByCode(code);
-    return result != null;
-  }
-
-  Future<void> _onJoinGroup(JoinGroup event, Emitter<GroupState> emit) async {
+  Future<void> _onGetGroupById(
+      GetGroupById event, Emitter<GroupState> emit) async {
     emit(GroupValidating());
     try {
-      final User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        throw Exception('Không tìm thấy người dùng hiện tại');
-      }
-      MemberModel member = MemberModel(
-        id: currentUser.uid,
-        name: currentUser.displayName ?? '',
-        avatar: currentUser.photoURL,
-        totalExpenseAmount: 0.0,
-        balance: 0.0,
-        isIdentified: true,
-        userAuthId: currentUser.uid,
-        role: 'member',
-      );
+      final group = await _groupRepository.getGroupById(event.groupId);
 
-      await _groupRepository.joinGroup(event.code, member);
-      emit(GroupSuccess("Tham gia nhóm thành công"));
+      if (group != null) {
+        emit(GroupByIdLoaded(group));
+        emit(GroupSuccess("Tìm nhóm thành công"));
+      } else {
+        emit(GroupFailure('Không tìm thấy nhóm'));
+      }
     } on FirebaseException catch (e) {
-      emit(GroupFailure(e.message ?? 'Lỗi tham gia nhóm'));
-    } catch (e) {
-      emit(GroupError(e.toString()));
+      emit(GroupFailure(e.message ?? 'Lỗi khi tìm nhóm'));
     }
   }
 }

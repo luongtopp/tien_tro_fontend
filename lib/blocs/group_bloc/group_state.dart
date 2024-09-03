@@ -1,5 +1,7 @@
 import 'package:chia_se_tien_sinh_hoat_tro/models/group_model.dart';
 
+import '../../models/user_model.dart';
+
 abstract class GroupState {}
 
 class GroupInitial extends GroupState {}
@@ -38,4 +40,34 @@ class UserHasGroups extends GroupState {
 
 class UserHasNoGroups extends GroupState {
   UserHasNoGroups();
+}
+
+class GroupByIdLoaded extends GroupState {
+  final GroupModel group;
+  GroupByIdLoaded(this.group);
+}
+
+class CreateGroupSuccess extends GroupState {
+  final String message;
+  final List<GroupModel> groups;
+  final UserModel user;
+  CreateGroupSuccess(this.message, this.groups, this.user);
+}
+
+class JoinGroupSuccess extends GroupState {
+  final String message;
+  final List<GroupModel> groups;
+  final UserModel user;
+
+  JoinGroupSuccess(this.message, this.groups, this.user);
+}
+
+class GroupStreamLoaded extends GroupState {
+  final List<GroupModel> groupsModel;
+  GroupStreamLoaded(this.groupsModel);
+}
+
+class StreamGroupSuccess extends GroupState {
+  final String message;
+  StreamGroupSuccess(this.message);
 }

@@ -33,3 +33,50 @@ AppBar appBarCustom({
     title: Text(title, style: AppTextStyles.heading),
   );
 }
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final GestureTapCallback? func;
+  final GestureTapCallback? funcOption;
+  final Color? backgroundColor;
+
+  const CustomAppBar({
+    super.key,
+    required this.title,
+    this.func,
+    this.funcOption,
+    this.backgroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: GestureDetector(
+        onTap: func,
+        child: Container(
+          margin: EdgeInsets.only(left: 15.w),
+          child:
+              const Icon(Icons.menu_rounded, color: AppColors.backgroundColor),
+        ),
+      ),
+      actions: [
+        GestureDetector(
+          onTap: funcOption,
+          child: Container(
+            margin: EdgeInsets.only(right: 15.w),
+            child: const Icon(Icons.more_vert_rounded,
+                color: AppColors.backgroundColor),
+          ),
+        ),
+      ],
+      backgroundColor: backgroundColor,
+      centerTitle: true,
+      title: Text(title,
+          style: AppTextStyles.titleStyle
+              .copyWith(fontSize: 16.sp, color: Colors.white)),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}

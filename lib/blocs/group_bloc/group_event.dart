@@ -58,10 +58,19 @@ class FindGroupByCode extends GroupEvent {
   List<Object> get props => [code];
 }
 
-class StreamGroups extends GroupEvent {
-  const StreamGroups();
+class StreamGroup extends GroupEvent {
+  const StreamGroup(this.userId);
+  final String userId;
   @override
-  List<Object> get props => [];
+  List<Object> get props => [userId];
+}
+
+class GetGroupById extends GroupEvent {
+  final String groupId;
+
+  const GetGroupById({required this.groupId});
+  @override
+  List<Object> get props => [groupId];
 }
 
 class JoinGroup extends GroupEvent {
@@ -71,4 +80,13 @@ class JoinGroup extends GroupEvent {
 
   @override
   List<Object> get props => [code];
+}
+
+class FetchGroupExpense extends GroupEvent {
+  final String groupId;
+
+  const FetchGroupExpense(this.groupId);
+
+  @override
+  List<Object> get props => [groupId];
 }

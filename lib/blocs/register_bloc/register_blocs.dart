@@ -27,19 +27,20 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     emit(RegisterValidating());
     try {
       User? user = await _authRepository.registerWithEmailPassword(
-        event.email,
-        event.password,
-        event.username,
-        event.file,
+        email: event.email,
+        password: event.password,
+        fullName: event.username,
+        imageFile: event.file,
       );
       if (user != null) {
         final userModel = UserModel(
           id: user.uid,
           fullName: user.displayName!,
           email: event.email,
-          imageUrl: user.photoURL,
+          avatarUrl: user.photoURL,
           socialId: user.uid,
           bankAccount: null,
+          hasGroup: false,
         );
         await _userRepository.createUser(userModel);
       }

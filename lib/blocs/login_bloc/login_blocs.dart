@@ -31,7 +31,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginValidating());
     try {
       User? user = await _authRepository.loginWithEmailPassword(
-          event.email, event.password);
+        email: event.email,
+        password: event.password,
+      );
       if (user != null) {
         UserModel userModel = (await _userRepository.getUserById(user.uid))!;
         List<GroupModel>? groups =
@@ -63,10 +65,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             id: user.uid,
             fullName: user.displayName ?? 'Unknown',
             email: user.email ?? 'No email',
-            imageUrl: user.photoURL,
+            avatarUrl: user.photoURL,
             socialId: user.uid,
             bankAccount: null,
             lastAccessedGroupId: null,
+            hasGroup: false,
           );
           await _userRepository.createUser(userModel);
         } else {

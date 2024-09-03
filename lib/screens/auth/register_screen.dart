@@ -72,9 +72,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       context.read<RegisterBloc>().add(
             SubmitRegister(
-              username: _usernameController.text,
-              email: _emailController.text,
-              password: _passwordController.text,
+              username: _usernameController.text.trim(),
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
               file: _selectedImage,
             ),
           );

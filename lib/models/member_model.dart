@@ -11,6 +11,7 @@ class MemberModel {
   final String? userAuthId;
   final String role;
   final String? bankAccountInfo;
+  final DateTime? lastAccessDate; // Thêm trường ngày truy cập gần nhất
 
   MemberModel({
     required this.id,
@@ -23,6 +24,7 @@ class MemberModel {
     this.userAuthId,
     required this.role,
     this.bankAccountInfo,
+    this.lastAccessDate, // Thêm vào constructor
   });
 
   factory MemberModel.fromFirestore(
@@ -40,6 +42,9 @@ class MemberModel {
       userAuthId: data?['userAuthId'],
       role: data?['role'] ?? '',
       bankAccountInfo: data?['bankAccountInfo'],
+      lastAccessDate: data?['lastAccessDate'] != null
+          ? (data?['lastAccessDate'] as Timestamp).toDate()
+          : null, // Chuyển đổi Timestamp thành DateTime
     );
   }
 
@@ -56,6 +61,9 @@ class MemberModel {
       userAuthId: map['userAuthId'],
       role: map['role'] ?? '',
       bankAccountInfo: map['bankAccountInfo'],
+      lastAccessDate: map['lastAccessDate'] != null
+          ? (map['lastAccessDate'] as Timestamp).toDate()
+          : null, // Chuyển đổi Timestamp thành DateTime
     );
   }
 
@@ -71,6 +79,9 @@ class MemberModel {
       'userAuthId': userAuthId,
       'role': role,
       'bankAccountInfo': bankAccountInfo,
+      'lastAccessDate': lastAccessDate != null
+          ? Timestamp.fromDate(lastAccessDate!)
+          : null, // Chuyển đổi DateTime thành Timestamp
     };
   }
 

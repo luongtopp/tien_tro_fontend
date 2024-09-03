@@ -4,15 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-import '../../blocs/group_bloc/group_bloc.dart';
-import '../../blocs/group_bloc/group_event.dart';
-import '../../blocs/group_bloc/group_state.dart';
-import '../../config/app_color.dart';
-import '../../config/text_styles.dart';
-import '../../utils/loading_overlay.dart';
-import '../../utils/snackbar_utils.dart';
-import '../../widgets/appbars/appbar_custom.dart';
-import '../../widgets/buttons/custom_button.dart';
+import '../../../blocs/group_bloc/group_bloc.dart';
+import '../../../blocs/group_bloc/group_event.dart';
+import '../../../blocs/group_bloc/group_state.dart';
+import '../../../config/app_color.dart';
+import '../../../config/text_styles.dart';
+import '../../../routes/app_route.dart';
+import '../../../utils/loading_overlay.dart';
+import '../../../utils/snackbar_utils.dart';
+import '../../../widgets/appbars/appbar_custom.dart';
+import '../../../widgets/buttons/custom_button.dart';
 
 class JoinGroupScreen extends StatefulWidget {
   const JoinGroupScreen({Key? key}) : super(key: key);
@@ -45,6 +46,16 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       case GroupSuccess():
         LoadingOverlay.hide();
         showCustomSnackBar(context, state.message, type: SnackBarType.success);
+        break;
+      case JoinGroupSuccess():
+        LoadingOverlay.hide();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.ZOOM_DRAWER_SCREEN,
+            (Route<dynamic> route) => false,
+            arguments: [state.groups, state.user],
+          );
+        });
         break;
     }
   }
@@ -108,7 +119,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       controller: _codeController,
       appContext: context,
       length: 6,
-      textStyle: AppTextStyles.subheading,
+      textStyle:
+          AppTextStyles.subheading.copyWith(color: AppColors.primaryColor),
       pinTheme: PinTheme(
         shape: PinCodeFieldShape.box,
         borderRadius: BorderRadius.circular(10.r),
