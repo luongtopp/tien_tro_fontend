@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../blocs/login_bloc/login_blocs.dart';
-import '../../blocs/login_bloc/login_events.dart';
-import '../../blocs/login_bloc/login_states.dart';
+import '../../blocs/auth_bloc/auth_blocs.dart';
+import '../../blocs/auth_bloc/auth_events.dart';
+import '../../blocs/auth_bloc/auth_states.dart';
 import '../../config/text_styles.dart';
 import '../../routes/app_route.dart';
 import '../../utils/loading_overlay.dart';
@@ -34,28 +34,23 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLoginState(BuildContext context, LoginState state) {
+  void _handleLoginState(BuildContext context, AuthState state) {
     switch (state) {
-      case LoginValidating():
+      case AuthInitial():
         LoadingOverlay.show(context);
         break;
-      case LoginSuccess():
+      case AuthAuthenticated():
         LoadingOverlay.hide();
         Navigator.of(context).pushReplacementNamed(
           AppRoutes.ZOOM_DRAWER_SCREEN,
-          arguments: [state.groups, state.user],
+          arguments: [state.user, state.hasGroup],
         );
-
         break;
-      case LoginFailure():
+      case AuthError():
         LoadingOverlay.hide();
-        showCustomSnackBar(context, state.error, type: SnackBarType.failed);
+        showCustomSnackBar(context, state.message, type: SnackBarType.error);
         break;
-      case LoginError():
-        LoadingOverlay.hide();
-        showCustomSnackBar(context, state.error, type: SnackBarType.error);
-        break;
-      case LoginOutSuccess():
+      case AuthSuccess():
         LoadingOverlay.hide();
         break;
       default:
@@ -66,8 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submitLogin() {
     if (_formKey.currentState!.validate()) {
-      context.read<LoginBloc>().add(
-            SubmitLogin(
+      context.read<AuthBloc>().add(
+            LoginRequested(
               email: _emailController.text,
               password: _passwordController.text.trim(),
             ),
@@ -77,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
+    return BlocListener<AuthBloc, AuthState>(
       listener: _handleLoginState,
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
@@ -187,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildGoogleLoginButton() {
     return buttonLoginGoogle(() {
-      context.read<LoginBloc>().add(LoginWithGoogle());
+      context.read<AuthBloc>().add(LoginWithGoogleRequested());
     });
   }
 

@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../blocs/login_bloc/login_blocs.dart';
-import '../../blocs/login_bloc/login_events.dart';
+import '../../blocs/auth_bloc/auth_blocs.dart';
+import '../../blocs/auth_bloc/auth_events.dart';
 import '../../blocs/register_bloc/register_blocs.dart';
 import '../../blocs/register_bloc/register_states.dart';
 import '../../config/text_styles.dart';
@@ -223,7 +223,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildGoogleLoginButton() {
     return buttonLoginGoogle(() {
-      context.read<LoginBloc>().add(LoginWithGoogle());
+      context.read<AuthBloc>().add(LoginWithGoogleRequested());
     });
   }
 }

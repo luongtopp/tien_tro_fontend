@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
+import '../../../blocs/auth_bloc/auth_blocs.dart';
+import '../../../blocs/auth_bloc/auth_events.dart';
 import '../../../blocs/group_bloc/group_bloc.dart';
 import '../../../blocs/group_bloc/group_event.dart';
 import '../../../blocs/group_bloc/group_state.dart';
-import '../../../blocs/login_bloc/login_blocs.dart';
-import '../../../blocs/login_bloc/login_events.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
 import '../../../models/group_model.dart';
@@ -180,7 +179,7 @@ class _MainDrawerState extends State<MainDrawer> {
   }
 
   void _logout() {
-    context.read<LoginBloc>().add(Logout());
+    context.read<AuthBloc>().add(LogoutRequested());
     Navigator.of(context)
         .pushNamedAndRemoveUntil(AppRoutes.LOGIN, (route) => false);
   }
