@@ -4,18 +4,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../blocs/group_bloc/group_bloc.dart';
 import '../../../blocs/group_bloc/group_event.dart';
-import '../../../blocs/group_bloc/group_state.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
-import '../../../routes/app_route.dart';
-import '../../../utils/loading_overlay.dart';
-import '../../../utils/snackbar_utils.dart';
-import '../../../widgets/appbars/appbar_custom.dart';
+import '../../../models/user_model.dart';
+import '../../../widgets/appbars/custom_appbar.dart';
 import '../../../widgets/buttons/custom_button.dart';
 import '../../../widgets/textfields/custom_textfield.dart';
 
 class CreateGroupScreen extends StatefulWidget {
-  const CreateGroupScreen({Key? key}) : super(key: key);
+  final UserModel? user;
+  const CreateGroupScreen({super.key, this.user});
 
   @override
   State<CreateGroupScreen> createState() => _CreateGroupScreenState();
@@ -33,38 +31,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     super.dispose();
   }
 
-  void _handleGroupState(BuildContext context, GroupState state) {
-    switch (state) {
-      case GroupValidating():
-        LoadingOverlay.show(context);
-        break;
-      case GroupFailure():
-        LoadingOverlay.hide();
-        showCustomSnackBar(context, state.error, type: SnackBarType.failed);
-        break;
-      case GroupError():
-        LoadingOverlay.hide();
-        showCustomSnackBar(context, state.error, type: SnackBarType.error);
-        break;
-      case CreateGroupSuccess():
-        LoadingOverlay.hide();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            AppRoutes.ZOOM_DRAWER_SCREEN,
-            (Route<dynamic> route) => false,
-            arguments: [state.groups, state.user],
-          );
-        });
-        break;
-      default:
-        LoadingOverlay.hide();
-        break;
-    }
-  }
-
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      context.read<GroupBloc>().add(AddGroup(
+      context.read<GroupBloc>().add(AddGroupRequested(
+            userId: widget.user!.id,
             name: _nameController.text.trim(),
             description: _descriptionController.text.trim(),
           ));
@@ -73,30 +43,29 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<GroupBloc, GroupState>(
-      listener: _handleGroupState,
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        appBar: appBarCustom(
-          context: context,
-          title: "Tạo nhóm",
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 48.w),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: 89.h),
-                  _buildNameField(),
-                  SizedBox(height: 24.h),
-                  _buildDescriptionField(),
-                  SizedBox(height: 48.h),
-                  _buildSubmitButton(),
-                ],
-              ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      appBar: CustomAppBar(
+        title: "Tạo nhóm",
+        leadingIcon: Icons.arrow_back_ios_new_rounded,
+        iconColor: AppColors.primaryColor,
+        func: () => Navigator.of(context).pop(),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 48.w),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 89.h),
+                _buildNameField(),
+                SizedBox(height: 24.h),
+                _buildDescriptionField(),
+                SizedBox(height: 48.h),
+                _buildSubmitButton(),
+              ],
             ),
           ),
         ),

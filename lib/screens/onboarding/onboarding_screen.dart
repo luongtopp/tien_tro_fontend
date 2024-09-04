@@ -141,7 +141,6 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           margin: EdgeInsets.only(top: 763.h),
           alignment: Alignment.topCenter,
           child: CustomButton(
-            isBorder: false,
             onTap: () {
               if (index < 2) {
                 _pageController.animateToPage(

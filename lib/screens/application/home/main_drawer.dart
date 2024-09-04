@@ -16,9 +16,8 @@ import '../../../widgets/dialogs/dialog_custom.dart';
 import '../../../widgets/drawer/drawer_widget.dart';
 
 class MainDrawer extends StatefulWidget {
-  final List<GroupModel> groups;
   final UserModel user;
-  const MainDrawer({super.key, required this.groups, required this.user});
+  const MainDrawer({super.key, required this.user});
 
   @override
   State<MainDrawer> createState() => _MainDrawerState();
@@ -37,7 +36,8 @@ class _MainDrawerState extends State<MainDrawer> {
   Widget build(BuildContext context) {
     return BlocListener<GroupBloc, GroupState>(
       listener: (context, state) {
-        if (state is GroupSuccess) {}
+        if (state is GroupActionResult) {
+        }
       },
       child: Scaffold(
         backgroundColor: Color.fromARGB(255, 1, 67, 95),
@@ -123,11 +123,11 @@ class _MainDrawerState extends State<MainDrawer> {
           //       blurStyle: BlurStyle.inner),
           // ],
         ),
-        child: ListView.builder(
-          itemCount: widget.groups.length,
-          itemBuilder: (context, index) =>
-              _buildGroupCard(widget.groups[index]),
-        ),
+        // child: ListView.builder(
+        //   itemCount: widget.groups.length,
+        //   itemBuilder: (context, index) =>
+        //       _buildGroupCard(widget.groups[index]),
+        // ),
       ),
     );
   }
@@ -153,7 +153,7 @@ class _MainDrawerState extends State<MainDrawer> {
 
   void _onGroupTap(String groupId) {
     setState(() => selectedGroupId = groupId);
-    context.read<GroupBloc>().add(GetGroupById(groupId: groupId));
+    context.read<GroupBloc>().add(FindGroupById(groupId));
   }
 
   Widget _buildLogoutTile() {

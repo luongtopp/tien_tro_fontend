@@ -13,7 +13,6 @@ void main() async {
   runApp(appRepositoryProviders(const MyApp()));
 }
 
-// Uncomment this function if needed for debugging
 void setSlowAnimations() {
   timeDilation = 30;
 }

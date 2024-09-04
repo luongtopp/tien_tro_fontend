@@ -3,25 +3,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MemberModel {
   final String id;
   final String name;
-  final String? avatar;
+  final String? avatarUrl;
   final String? description;
   final double totalExpenseAmount;
   final double balance;
   final bool isIdentified;
-  final String? userAuthId;
   final String role;
   final String? bankAccountInfo;
-  final DateTime? lastAccessDate; // Thêm trường ngày truy cập gần nhất
+  final DateTime? lastAccessDate;
 
   MemberModel({
     required this.id,
     required this.name,
-    this.avatar,
+    this.avatarUrl,
     this.description,
     required this.totalExpenseAmount,
     required this.balance,
     required this.isIdentified,
-    this.userAuthId,
     required this.role,
     this.bankAccountInfo,
     this.lastAccessDate, // Thêm vào constructor
@@ -33,13 +31,12 @@ class MemberModel {
     return MemberModel(
       id: doc.id,
       name: data?['name'] ?? '',
-      avatar: data?['avatar'],
+      avatarUrl: data?['avatarUrl'],
       description: data?['description'],
       totalExpenseAmount:
           (data?['totalExpenseAmount'] as num?)?.toDouble() ?? 0.0,
       balance: (data?['balance'] as num?)?.toDouble() ?? 0.0,
       isIdentified: data?['isIdentified'] ?? false,
-      userAuthId: data?['userAuthId'],
       role: data?['role'] ?? '',
       bankAccountInfo: data?['bankAccountInfo'],
       lastAccessDate: data?['lastAccessDate'] != null
@@ -52,13 +49,12 @@ class MemberModel {
     return MemberModel(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
-      avatar: map['avatar'],
+      avatarUrl: map['avatarUrl'],
       description: map['description'],
       totalExpenseAmount:
           (map['totalExpenseAmount'] as num?)?.toDouble() ?? 0.0,
       balance: (map['balance'] as num?)?.toDouble() ?? 0.0,
       isIdentified: map['isIdentified'] ?? false,
-      userAuthId: map['userAuthId'],
       role: map['role'] ?? '',
       bankAccountInfo: map['bankAccountInfo'],
       lastAccessDate: map['lastAccessDate'] != null
@@ -71,12 +67,11 @@ class MemberModel {
     return {
       'id': id,
       'name': name,
-      'avatar': avatar,
+      'avatarUrl': avatarUrl,
       'description': description,
       'totalExpenseAmount': totalExpenseAmount,
       'balance': balance,
       'isIdentified': isIdentified,
-      'userAuthId': userAuthId,
       'role': role,
       'bankAccountInfo': bankAccountInfo,
       'lastAccessDate': lastAccessDate != null
@@ -88,26 +83,26 @@ class MemberModel {
   MemberModel copyWith({
     String? id,
     String? name,
-    String? avatar,
+    String? avatarUrl,
     String? description,
     double? totalExpenseAmount,
     double? balance,
     bool? isIdentified,
-    String? userAuthId,
     String? role,
     String? bankAccountInfo,
+    DateTime? lastAccessDate,
   }) {
     return MemberModel(
       id: id ?? this.id,
       name: name ?? this.name,
-      avatar: avatar ?? this.avatar,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       description: description ?? this.description,
       totalExpenseAmount: totalExpenseAmount ?? this.totalExpenseAmount,
       balance: balance ?? this.balance,
       isIdentified: isIdentified ?? this.isIdentified,
-      userAuthId: userAuthId ?? this.userAuthId,
       role: role ?? this.role,
       bankAccountInfo: bankAccountInfo ?? this.bankAccountInfo,
+      lastAccessDate: lastAccessDate ?? this.lastAccessDate,
     );
   }
 }

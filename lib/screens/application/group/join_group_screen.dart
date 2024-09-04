@@ -6,17 +6,15 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../blocs/group_bloc/group_bloc.dart';
 import '../../../blocs/group_bloc/group_event.dart';
-import '../../../blocs/group_bloc/group_state.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
-import '../../../routes/app_route.dart';
-import '../../../utils/loading_overlay.dart';
-import '../../../utils/snackbar_utils.dart';
-import '../../../widgets/appbars/appbar_custom.dart';
+import '../../../models/user_model.dart';
+import '../../../widgets/appbars/custom_appbar.dart';
 import '../../../widgets/buttons/custom_button.dart';
 
 class JoinGroupScreen extends StatefulWidget {
-  const JoinGroupScreen({Key? key}) : super(key: key);
+  final UserModel? user;
+  const JoinGroupScreen({super.key, this.user});
 
   @override
   State<JoinGroupScreen> createState() => _JoinGroupScreenState();
@@ -30,72 +28,44 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
     super.dispose();
   }
 
-  void _handleGroupState(BuildContext context, GroupState state) {
-    switch (state) {
-      case GroupValidating():
-        LoadingOverlay.show(context);
-        break;
-      case GroupFailure():
-        LoadingOverlay.hide();
-        showCustomSnackBar(context, state.error, type: SnackBarType.failed);
-        break;
-      case GroupError():
-        LoadingOverlay.hide();
-        showCustomSnackBar(context, state.error, type: SnackBarType.error);
-        break;
-      case GroupSuccess():
-        LoadingOverlay.hide();
-        showCustomSnackBar(context, state.message, type: SnackBarType.success);
-        break;
-      case JoinGroupSuccess():
-        LoadingOverlay.hide();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            AppRoutes.ZOOM_DRAWER_SCREEN,
-            (Route<dynamic> route) => false,
-            arguments: [state.groups, state.user],
-          );
-        });
-        break;
-    }
-  }
-
   void _submitJoinGroup() {
     if (_formKey.currentState!.validate()) {
-      context.read<GroupBloc>().add(JoinGroup(_codeController.text));
+      context.read<GroupBloc>().add(JoinGroupRequested(
+            userId: widget.user!.id,
+            code: _codeController.text,
+          ));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<GroupBloc, GroupState>(
-      listener: _handleGroupState,
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        appBar: appBarCustom(
-          context: context,
-          title: "Tham gia nhóm",
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                    Text(
-                      'Nhập mã nhóm',
-                      style: AppTextStyles.subheading,
-                    ),
-                    SizedBox(height: 16.h),
-                    _buildPinCodeTextField(),
-                    SizedBox(height: 24.h),
-                    _buildJoinButton(),
-                  ],
-                ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      appBar: CustomAppBar(
+        title: "Tham gia nhóm",
+        leadingIcon: Icons.arrow_back_ios_new_rounded,
+        iconColor: AppColors.primaryColor,
+        func: () => Navigator.of(context).pop(),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                  Text(
+                    'Nhập mã nhóm',
+                    style: AppTextStyles.subheading,
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildPinCodeTextField(),
+                  SizedBox(height: 24.h),
+                  _buildJoinButton(),
+                ],
               ),
             ),
           ),

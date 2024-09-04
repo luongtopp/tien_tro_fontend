@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:chia_se_tien_sinh_hoat_tro/blocs/register_bloc/register_events.dart';
 import 'package:chia_se_tien_sinh_hoat_tro/config/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,14 +7,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../blocs/auth_bloc/auth_blocs.dart';
 import '../../blocs/auth_bloc/auth_events.dart';
-import '../../blocs/register_bloc/register_blocs.dart';
-import '../../blocs/register_bloc/register_states.dart';
+import '../../blocs/auth_bloc/auth_states.dart';
 import '../../config/text_styles.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/loading_overlay.dart';
 import '../../utils/snackbar_utils.dart';
 import '../../utils/validators.dart';
-import '../../widgets/appbars/appbar_custom.dart';
+import '../../widgets/appbars/custom_appbar.dart';
 import '../../widgets/buttons/custom_button.dart';
 import '../../widgets/image_pickers/custom_image_picker.dart';
 import '../../widgets/textfields/custom_textfield.dart';
@@ -46,19 +44,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegisterState(BuildContext context, RegisterState state) {
-    LoadingOverlay.hide();
+  void _handleRegisterState(BuildContext context, AuthState state) {
     switch (state) {
-      case RegisterValidating():
+      case AuthLoading():
         LoadingOverlay.show(context);
-      case RegisterSuccess():
+        break;
+      case AuthSuccess():
+        LoadingOverlay.hide();
         showCustomSnackBar(context, state.message, type: SnackBarType.success);
         Navigator.pop(context);
-      case RegisterFailure():
-        showCustomSnackBar(context, state.error, type: SnackBarType.failed);
-      case RegisterError():
-        showCustomSnackBar(context, state.error, type: SnackBarType.error);
+        break;
+      case AuthError():
+        LoadingOverlay.hide();
+        showCustomSnackBar(context, state.message, type: SnackBarType.error);
+        break;
       default:
+        LoadingOverlay.hide();
+        break;
     }
   }
 
@@ -70,12 +72,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _submitRegistration() {
     if (_formKey.currentState!.validate()) {
-      context.read<RegisterBloc>().add(
-            SubmitRegister(
-              username: _usernameController.text.trim(),
+      context.read<AuthBloc>().add(
+            RegisterRequested(
+              name: _usernameController.text.trim(),
               email: _emailController.text.trim(),
               password: _passwordController.text.trim(),
-              file: _selectedImage,
+              imageFile: _selectedImage,
             ),
           );
     }
@@ -83,11 +85,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<RegisterBloc, RegisterState>(
+    return BlocListener<AuthBloc, AuthState>(
       listener: _handleRegisterState,
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
-        appBar: appBarCustom(context: context, title: 'Đăng ký'),
+        appBar: CustomAppBar(
+          title: 'Đăng ký',
+          leadingIcon: Icons.arrow_back_ios_new_rounded,
+          iconColor: AppColors.primaryColor,
+          func: () => Navigator.of(context).pop(),
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(

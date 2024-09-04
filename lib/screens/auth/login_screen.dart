@@ -36,14 +36,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleLoginState(BuildContext context, AuthState state) {
     switch (state) {
-      case AuthInitial():
+      case AuthLoading():
         LoadingOverlay.show(context);
         break;
       case AuthAuthenticated():
         LoadingOverlay.hide();
         Navigator.of(context).pushReplacementNamed(
           AppRoutes.ZOOM_DRAWER_SCREEN,
-          arguments: [state.user, state.hasGroup],
+          arguments: [state.user],
         );
         break;
       case AuthError():

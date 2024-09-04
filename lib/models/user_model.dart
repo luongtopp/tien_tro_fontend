@@ -5,17 +5,13 @@ class UserModel {
   final String fullName;
   final String? avatarUrl;
   final String email;
-  final String socialId;
   final String? bankAccount;
   final String? lastAccessedGroupId;
-  final bool hasGroup;
   UserModel({
     required this.id,
     required this.fullName,
     String? avatarUrl,
     required this.email,
-    required this.socialId,
-    required this.hasGroup,
     this.bankAccount,
     this.lastAccessedGroupId,
   }) : avatarUrl = avatarUrl ??
@@ -28,10 +24,8 @@ class UserModel {
       fullName: data['fullName'],
       avatarUrl: data['imageUrl'],
       email: data['email'],
-      socialId: data['socialId'],
       bankAccount: data['bankAccount'],
       lastAccessedGroupId: data['lastAccessedGroupId'],
-      hasGroup: data['hasGroup'],
     );
   }
 
@@ -41,19 +35,16 @@ class UserModel {
       'fullName': fullName,
       'imageUrl': avatarUrl,
       'email': email,
-      'socialId': socialId,
       'bankAccount': bankAccount,
       'lastAccessedGroupId': lastAccessedGroupId,
-      'hasGroup': hasGroup,
     };
   }
 
   UserModel copyWith({
     String? id,
     String? fullName,
-    String? imageUrl,
+    String? avatarUrl,
     String? email,
-    String? socialId,
     String? bankAccount,
     String? lastAccessedGroupId,
     bool? hasGroup,
@@ -61,12 +52,10 @@ class UserModel {
     return UserModel(
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
-      avatarUrl: imageUrl ?? this.avatarUrl,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       email: email ?? this.email,
-      socialId: socialId ?? this.socialId,
       bankAccount: bankAccount ?? this.bankAccount,
       lastAccessedGroupId: lastAccessedGroupId ?? this.lastAccessedGroupId,
-      hasGroup: hasGroup ?? this.hasGroup,
     );
   }
 
@@ -76,10 +65,8 @@ class UserModel {
       fullName: fullName,
       avatarUrl: avatarUrl,
       email: email,
-      socialId: socialId,
       bankAccount: bankAccount,
       lastAccessedGroupId: lastAccessedGroupId,
-      hasGroup: hasGroup,
     );
   }
 }

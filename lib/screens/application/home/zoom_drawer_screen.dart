@@ -21,7 +21,7 @@ class ZoomDrawerScreen extends StatefulWidget {
 }
 
 class _ZoomDrawerScreenState extends State<ZoomDrawerScreen> {
-  late UserModel user;
+  UserModel? user;
   bool _isInitialized = false;
 
   @override
@@ -35,47 +35,19 @@ class _ZoomDrawerScreenState extends State<ZoomDrawerScreen> {
 
   void _initializeUser() {
     final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-    user = args[1] as UserModel;
-    context.read<GroupBloc>().add(StreamGroup(user.id));
+    user = args[0];
+    if (user!.lastAccessedGroupId != null) {
+      context.read<GroupBloc>().add(StreamGroup(user!.id));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<GroupBloc, GroupState>(
-      listener: (context, state) {
-        switch (state) {
-          case GroupValidating():
-            LoadingOverlay.show(context);
-          case GroupFailure():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.failed);
-          case GroupError():
-            LoadingOverlay.hide();
-            showCustomSnackBar(context, state.error, type: SnackBarType.error);
-          default:
-            LoadingOverlay.hide();
-        }
-      },
-      builder: (context, state) {
-        switch (state) {
-          case GroupValidating():
-            return const Center(child: CircularProgressIndicator());
-          case GroupStreamLoaded():
-            return _buildZoomDrawer(state.groupsModel);
-
-          default:
-            return const Center(child: Text('Unknown state'));
-        }
-      },
-    );
-  }
-
-  Widget _buildZoomDrawer(List<GroupModel> groups) {
-    return groups.isNotEmpty
+    return user!.lastAccessedGroupId != null
         ? ZoomDrawer(
             style: DrawerStyle.defaultStyle,
-            mainScreen: HomeScreen(userId: user.id),
-            menuScreen: MainDrawer(groups: groups, user: user),
+            mainScreen: HomeScreen(user: user!),
+            menuScreen: MainDrawer(user: user!),
             menuScreenWidth: 240.w,
             slideWidth: 430.w * 0.75,
             borderRadius: 30.r,
@@ -86,6 +58,6 @@ class _ZoomDrawerScreenState extends State<ZoomDrawerScreen> {
             angle: 0.0,
             menuBackgroundColor: const Color.fromARGB(255, 1, 67, 95),
           )
-        : const GroupScreen();
+        : HomeScreen(user: user!);
   }
 }

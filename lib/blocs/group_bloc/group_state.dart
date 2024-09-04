@@ -1,6 +1,4 @@
-import 'package:chia_se_tien_sinh_hoat_tro/models/group_model.dart';
-
-import '../../models/user_model.dart';
+import '../../models/group_model.dart';
 
 abstract class GroupState {}
 
@@ -13,14 +11,14 @@ class GroupsLoaded extends GroupState {
   GroupsLoaded(this.groups);
 }
 
-class GroupSuccess extends GroupState {
+class GroupActionResult extends GroupState {
   final String message;
-  GroupSuccess(this.message);
-}
+  final GroupModel? group;
 
-class GroupFailure extends GroupState {
-  final String error;
-  GroupFailure(this.error);
+  GroupActionResult({
+    required this.message,
+    this.group,
+  });
 }
 
 class GroupError extends GroupState {
@@ -28,46 +26,12 @@ class GroupError extends GroupState {
   GroupError(this.error);
 }
 
-class GroupNotification extends GroupState {
-  final String notificationMessage;
-  GroupNotification(this.notificationMessage);
-}
-
-class UserHasGroups extends GroupState {
-  final GroupModel group;
-  UserHasGroups(this.group);
-}
-
-class UserHasNoGroups extends GroupState {
-  UserHasNoGroups();
-}
-
-class GroupByIdLoaded extends GroupState {
-  final GroupModel group;
-  GroupByIdLoaded(this.group);
-}
-
-class CreateGroupSuccess extends GroupState {
-  final String message;
-  final List<GroupModel> groups;
-  final UserModel user;
-  CreateGroupSuccess(this.message, this.groups, this.user);
-}
-
-class JoinGroupSuccess extends GroupState {
-  final String message;
-  final List<GroupModel> groups;
-  final UserModel user;
-
-  JoinGroupSuccess(this.message, this.groups, this.user);
+class UserGroupStatus extends GroupState {
+  final GroupModel? group;
+  UserGroupStatus({this.group});
 }
 
 class GroupStreamLoaded extends GroupState {
   final List<GroupModel> groupsModel;
   GroupStreamLoaded(this.groupsModel);
-}
-
-class StreamGroupSuccess extends GroupState {
-  final String message;
-  StreamGroupSuccess(this.message);
 }

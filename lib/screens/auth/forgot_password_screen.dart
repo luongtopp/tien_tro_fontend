@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../blocs/forgot_password_bloc/forgot_password_blocs.dart';
-import '../../blocs/forgot_password_bloc/forgot_password_events.dart';
-import '../../blocs/forgot_password_bloc/forgot_password_states.dart';
+import '../../blocs/auth_bloc/auth_blocs.dart';
+import '../../blocs/auth_bloc/auth_events.dart';
+import '../../blocs/auth_bloc/auth_states.dart';
 import '../../config/app_color.dart';
 import '../../config/text_styles.dart';
 import '../../utils/loading_overlay.dart';
 import '../../utils/snackbar_utils.dart';
 import '../../utils/validators.dart';
-import '../../widgets/appbars/appbar_custom.dart';
+import '../../widgets/appbars/custom_appbar.dart';
 import '../../widgets/buttons/custom_button.dart';
 import '../../widgets/textfields/custom_textfield.dart';
 
@@ -31,25 +31,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _handleForgotPasswordState(
-      BuildContext context, ForgotPasswordState state) {
-    LoadingOverlay.hide();
+  void _handleForgotPasswordState(BuildContext context, AuthState state) {
     switch (state) {
-      case ForgotPasswordValidating():
+      case AuthLoading():
         LoadingOverlay.show(context);
         break;
-      case ForgotPasswordSuccess():
+      case AuthSuccess():
+        showCustomSnackBar(context, state.message, type: SnackBarType.success);
         Navigator.pop(context);
         break;
-      case ForgotPasswordNotification():
-        showCustomSnackBar(context, state.notificationMessage,
-            type: SnackBarType.success);
+      case AuthError():
+        showCustomSnackBar(context, state.message, type: SnackBarType.error);
         break;
-      case ForgotPasswordFailure():
-        showCustomSnackBar(context, state.error, type: SnackBarType.error);
-        break;
-      case ForgotPasswordError():
-        showCustomSnackBar(context, state.error, type: SnackBarType.error);
+      default:
+        LoadingOverlay.hide();
         break;
     }
   }
@@ -57,18 +52,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _submitForgotPassword() {
     if (_formKey.currentState!.validate()) {
       context
-          .read<ForgotPasswordBloc>()
-          .add(SubmitForgotPassword(_emailController.text));
+          .read<AuthBloc>()
+          .add(ForgotPasswordRequested(email: _emailController.text));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ForgotPasswordBloc, ForgotPasswordState>(
+    return BlocListener<AuthBloc, AuthState>(
       listener: _handleForgotPasswordState,
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
-        appBar: appBarCustom(context: context, title: 'Quên mật khẩu'),
+        appBar: CustomAppBar(
+          title: 'Quên mật khẩu',
+          leadingIcon: Icons.arrow_back_ios_new_rounded,
+          iconColor: AppColors.primaryColor,
+          funcOption: () => Navigator.of(context).pop(),
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(

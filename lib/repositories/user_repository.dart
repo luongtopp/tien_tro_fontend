@@ -13,7 +13,8 @@ class UserRepository {
     try {
       await _firestore.collection('users').doc(user.id).set(user.toMap());
     } catch (e) {
-      throw handleException(e, 'Lỗi tạo tài khoản', 'user');
+      throw handleException(
+          e: e, defaultMessage: 'Lỗi tạo tài khoản', plugin: 'user');
     }
   }
 
@@ -22,7 +23,8 @@ class UserRepository {
     try {
       await _firestore.collection('users').doc(user.id).update(user.toMap());
     } catch (e) {
-      throw handleException(e, 'Lỗi sửa tài khoản', 'user');
+      throw handleException(
+          e: e, defaultMessage: 'Lỗi sửa tài khoản', plugin: 'user');
     }
   }
 
@@ -31,11 +33,11 @@ class UserRepository {
     try {
       await _firestore.collection('users').doc(userId).delete();
     } catch (e) {
-      throw handleException(e, 'Lỗi xóa tài khoản', 'user');
+      throw handleException(
+          e: e, defaultMessage: 'Lỗi xóa tài khoản', plugin: 'user');
     }
   }
 
-  // Lấy thông tin tài khoản
   Future<UserModel?> getUserById(String userId) async {
     try {
       DocumentSnapshot doc =
@@ -44,8 +46,11 @@ class UserRepository {
         return UserModel.fromFirestore(doc);
       }
       return null;
+    } on FirebaseException catch (e) {
+      throw handleException(
+          e: e, defaultMessage: 'Lỗi tìm nạp tài khoản', plugin: 'user');
     } catch (e) {
-      throw handleException(e, 'Lỗi tìm nạp tài khoản', 'user');
+      throw Exception('Lỗi tìm nạp tài khoản: $e');
     }
   }
 
@@ -58,18 +63,23 @@ class UserRepository {
       }
       return null;
     } catch (e) {
-      throw handleException(e, 'Lỗi tìm nạp mã nhóm cuối cùng', 'user');
+      throw handleException(
+          e: e,
+          defaultMessage: 'Lỗi tìm nạp mã nhóm cuối cùng',
+          plugin: 'user');
     }
   }
 
-  Future<void> saveLastAccessedGroupId(String userId, String groupId) async {
+  Future<void> updateLastAccessedGroupId(
+      {required String userId, required String groupId}) async {
     try {
       await _firestore
           .collection('users')
           .doc(userId)
           .update({'lastAccessedGroupId': groupId});
     } catch (e) {
-      throw handleException(e, 'Lỗi lưu mã nhóm cuối cùng', 'user');
+      throw handleException(
+          e: e, defaultMessage: 'Lỗi lưu mã nhóm cuối cùng', plugin: 'user');
     }
   }
 
@@ -82,7 +92,8 @@ class UserRepository {
       }
       return false;
     } catch (e) {
-      throw handleException(e, 'Lỗi kiểm tra nhóm', 'user');
+      throw handleException(
+          e: e, defaultMessage: 'Lỗi kiểm tra nhóm', plugin: 'user');
     }
   }
 }

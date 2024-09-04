@@ -34,15 +34,21 @@ class AppPages {
       ),
       PageEntity(
         route: AppRoutes.GROUP_SCREEN,
-        page: const GroupScreen(),
+        page: const GroupScreen(
+          user: null,
+        ),
       ),
       PageEntity(
         route: AppRoutes.CREATE_GROUP,
-        page: const CreateGroupScreen(),
+        page: const CreateGroupScreen(
+          user: null,
+        ),
       ),
       PageEntity(
         route: AppRoutes.JOIN_GROUP,
-        page: const JoinGroupScreen(),
+        page: const JoinGroupScreen(
+          user: null,
+        ),
       ),
     ];
   }

@@ -18,7 +18,13 @@ class AuthRepository {
         _firebaseStorage = firebaseStorage ?? FirebaseStorage.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn();
 
-  String? get uid => _firebaseAuth.currentUser?.uid;
+  String? get uid {
+    try {
+      return _firebaseAuth.currentUser?.uid;
+    } catch (e) {
+      throw Exception('Lỗi khi lấy thông tin tài khoản hiện tại: $e');
+    }
+  }
 
   Future<User?> loginWithGoogle() async {
     try {
@@ -36,12 +42,6 @@ class AuthRepository {
           await _firebaseAuth.signInWithCredential(credential);
       final user = userCredential.user;
       if (user != null) {
-        if (!user.emailVerified) {
-          throw FirebaseAuthException(
-            message: 'Tài khoản chưa được xác thực',
-            code: 'email-not-verified',
-          );
-        }
         return user;
       } else {
         throw Exception('Lỗi khi đăng nhập');
@@ -60,6 +60,7 @@ class AuthRepository {
     try {
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
+
       final user = userCredential.user;
       if (user != null) {
         if (!user.emailVerified) {
@@ -111,17 +112,23 @@ class AuthRepository {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _firebaseAuth.sendPasswordResetEmail(email: email);
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       throw handleAuthException(e, 'Lỗi gửi email đặt lại mật khẩu');
+    } catch (e) {
+      throw Exception(
+        'Lỗi gửi email đặt lại mật khẩu: $e',
+      );
     }
   }
 
   Future<void> logout() async {
     try {
       await Future.wait([_googleSignIn.signOut(), _firebaseAuth.signOut()]);
+    } on FirebaseAuthException catch (e) {
+      throw handleAuthException(e, 'Lỗi đăng xuất không xác định');
     } catch (e) {
       throw Exception(
-        'Lỗi khi đăng xuất: $e',
+        'Lỗi đăng xuất: $e',
       );
     }
   }
@@ -129,6 +136,8 @@ class AuthRepository {
   Future<User?> getCurrentUser() async {
     try {
       return _firebaseAuth.currentUser;
+    } on FirebaseAuthException catch (e) {
+      throw handleAuthException(e, 'Lỗi khi lấy thông tin tài khoản hiện tại');
     } catch (e) {
       throw Exception(
         'Lỗi khi lấy thông tin tài khoản hiện tại: $e',
@@ -160,6 +169,8 @@ class AuthRepository {
           .child('avatars/${DateTime.now().millisecondsSinceEpoch}');
       await ref.putFile(file);
       return await ref.getDownloadURL();
+    } on FirebaseAuthException catch (e) {
+      throw handleAuthException(e, 'Lỗi tải lên ảnh không xác định');
     } catch (e) {
       throw Exception(
         'Không thể tải lên ảnh: $e',

@@ -38,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _userRepository.getUserById(user.uid);
         if (userModel != null) {
-          emit(AuthAuthenticated(userModel, userModel.hasGroup));
+          emit(AuthAuthenticated(userModel));
         }
       } else {
         throw FirebaseAuthException(
@@ -49,7 +49,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message!));
     } catch (e) {
-      emit(AuthError('Đăng nhập thất bại: ${e.toString()}'));
+      emit(AuthError(e.toString()));
     }
   }
 
@@ -68,17 +68,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             fullName: user.displayName ?? '',
             avatarUrl: user.photoURL,
             email: user.email ?? '',
-            socialId: user.uid,
-            hasGroup: false,
           );
           await _userRepository.createUser(userModel);
         }
-        emit(AuthAuthenticated(userModel, userModel.hasGroup));
+        emit(AuthAuthenticated(userModel));
       }
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message!));
     } catch (e) {
-      emit(AuthError('Đăng nhập bằng Google thất bại: ${e.toString()}'));
+      emit(AuthError(e.toString()));
     }
   }
 
@@ -94,7 +92,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message!));
     } catch (e) {
-      emit(AuthError('Gửi email đặt lại mật khẩu thất bại: ${e.toString()}'));
+      emit(AuthError(e.toString()));
     }
   }
 
@@ -116,18 +114,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           fullName: event.name,
           avatarUrl: user.photoURL,
           email: user.email!,
-          socialId: user.uid,
-          bankAccount: null,
-          lastAccessedGroupId: null,
-          hasGroup: false,
         );
         await _userRepository.createUser(userModel);
-        emit(AuthAuthenticated(userModel, false));
+        emit(const AuthSuccess(
+            'Một email đã được gửi đến email của bạn. Nhấp vào liên kết để xác thực.'));
       }
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message!));
     } catch (e) {
-      emit(AuthError('Đăng ký thất bại: ${e.toString()}'));
+      emit(AuthError(e.toString()));
     }
   }
 
@@ -142,7 +137,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message!));
     } catch (e) {
-      emit(AuthError('Đăng xuất thất bại: ${e.toString()}'));
+      emit(AuthError(e.toString()));
     }
   }
 
@@ -154,7 +149,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (currentUser != null) {
         final userModel = await _userRepository.getUserById(currentUser.uid);
         if (userModel != null) {
-          emit(AuthAuthenticated(userModel, userModel.hasGroup));
+          emit(AuthAuthenticated(userModel));
         } else {
           throw FirebaseException(
             plugin: 'auth',
@@ -168,7 +163,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message!));
     } catch (e) {
-      emit(AuthError('Kiểm tra xác thực thất bại: ${e.toString()}'));
+      emit(AuthError(e.toString()));
     }
   }
 }

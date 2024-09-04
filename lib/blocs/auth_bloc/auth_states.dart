@@ -15,9 +15,8 @@ class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
   final UserModel user;
-  final bool hasGroup;
 
-  const AuthAuthenticated(this.user, this.hasGroup);
+  const AuthAuthenticated(this.user);
 
   @override
   List<Object> get props => [user];

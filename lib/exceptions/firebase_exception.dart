@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 FirebaseException handleException(
-    dynamic e, String defaultMessage, String plugin) {
+    {required dynamic e,
+    required String defaultMessage,
+    required String plugin}) {
   return FirebaseException(
     plugin: plugin,
     code: e.code,

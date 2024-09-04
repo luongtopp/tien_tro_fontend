@@ -8,7 +8,6 @@ class GroupModel {
   final String description;
   final String code;
   final String ownerId;
-  final String ownerUserId;
   final bool isActive;
   final bool isReceiveNotification;
   final String type;
@@ -23,7 +22,6 @@ class GroupModel {
     required this.description,
     required this.code,
     required this.ownerId,
-    required this.ownerUserId,
     required this.isActive,
     required this.isReceiveNotification,
     required this.type,
@@ -42,7 +40,6 @@ class GroupModel {
         description: data['description'] as String,
         code: data['code'] as String,
         ownerId: data['ownerId'] as String,
-        ownerUserId: data['ownerUserId'] as String,
         isActive: data['isActive'] as bool,
         isReceiveNotification: data['isReceiveNotification'] as bool,
         type: data['type'] as String,
@@ -66,7 +63,6 @@ class GroupModel {
       'description': description,
       'code': code,
       'ownerId': ownerId,
-      'ownerUserId': ownerUserId,
       'isActive': isActive,
       'isReceiveNotification': isReceiveNotification,
       'type': type,
@@ -83,7 +79,6 @@ class GroupModel {
     String? description,
     String? code,
     String? ownerId,
-    String? ownerUserId,
     bool? isActive,
     bool? isReceiveNotification,
     String? type,
@@ -98,7 +93,6 @@ class GroupModel {
       description: description ?? this.description,
       code: code ?? this.code,
       ownerId: ownerId ?? this.ownerId,
-      ownerUserId: ownerUserId ?? this.ownerUserId,
       isActive: isActive ?? this.isActive,
       isReceiveNotification:
           isReceiveNotification ?? this.isReceiveNotification,

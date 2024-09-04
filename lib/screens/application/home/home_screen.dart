@@ -10,17 +10,18 @@ import '../../../blocs/group_bloc/group_stream_bloc.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
 import '../../../models/group_model.dart';
+import '../../../models/user_model.dart';
 import '../../../utils/utils.dart';
-import '../../../widgets/appbars/appbar_custom.dart';
+import '../../../widgets/appbars/custom_appbar.dart';
 import '../group/group_detail_screen.dart';
 import '../group/group_screen.dart';
 import '../notification/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  String userId;
+  final UserModel user;
   HomeScreen({
     super.key,
-    required this.userId,
+    required this.user,
   });
 
   @override
@@ -38,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final groupBloc = BlocProvider.of<GroupStreamBloc>(context);
-    groupBloc.add(StreamGroup(widget.userId));
+    groupBloc.add(StreamGroup(widget.user.id));
 
     return BlocBuilder<GroupStreamBloc, GroupState>(
       builder: (context, state) {
@@ -130,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       case 1:
-        return GroupScreen();
+        return GroupScreen(user: widget.user);
       case 2:
         return NotificationScreen();
       case 3:
@@ -138,8 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return Center(
           child: BlocBuilder<GroupBloc, GroupState>(builder: (context, state) {
-            if (state is GroupByIdLoaded) {
-              return Text('Welcome to ${state.group.name}!');
+            if (state is GroupActionResult) {
+              return Text('Welcome to ${state.group!.name}!');
             } else {
               return Text('Không xác định');
             }
