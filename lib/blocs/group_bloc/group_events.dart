@@ -9,19 +9,19 @@ abstract class GroupEvent extends Equatable {
 
 class FetchGroups extends GroupEvent {}
 
-class AddGroupRequested extends GroupEvent {
+class AddGroup extends GroupEvent {
   final String name;
   final String description;
   final String userId;
-  const AddGroupRequested(
+  const AddGroup(
       {required this.name, required this.description, required this.userId});
   @override
   List<Object> get props => [name, description, userId];
 }
 
-class JoinGroupRequested extends GroupEvent {
+class JoinGroup extends GroupEvent {
   final String code, userId;
-  const JoinGroupRequested({required this.code, required this.userId});
+  const JoinGroup({required this.code, required this.userId});
   @override
   List<Object> get props => [code, userId];
 }
@@ -40,6 +40,13 @@ class DeleteGroup extends GroupEvent {
   List<Object> get props => [groupId];
 }
 
+class RemoveMemberFromGroup extends GroupEvent {
+  final String groupId, memberId;
+  const RemoveMemberFromGroup(this.groupId, this.memberId);
+  @override
+  List<Object> get props => [groupId, memberId];
+}
+
 class FindGroupById extends GroupEvent {
   final String groupId;
   const FindGroupById(this.groupId);
@@ -52,11 +59,4 @@ class FindGroupByCode extends GroupEvent {
   const FindGroupByCode(this.code);
   @override
   List<Object> get props => [code];
-}
-
-class StreamGroup extends GroupEvent {
-  final String userId;
-  const StreamGroup(this.userId);
-  @override
-  List<Object> get props => [userId];
 }

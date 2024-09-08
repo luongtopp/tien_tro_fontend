@@ -2,6 +2,7 @@ import 'package:chia_se_tien_sinh_hoat_tro/config/app_color.dart';
 import 'package:chia_se_tien_sinh_hoat_tro/config/onboarding_config.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

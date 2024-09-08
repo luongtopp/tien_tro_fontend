@@ -52,7 +52,8 @@ String? _translateFirebaseError(String code) {
       return 'Chức năng chưa được triển khai';
     case 'internal':
       return 'Lỗi nội bộ hệ thống';
-
+    case 'not-found-code':
+      return 'Không tìm thấy nhóm với mã này';
     case 'data-stale':
       return 'Dữ liệu đã cũ';
     case 'unauthenticated':

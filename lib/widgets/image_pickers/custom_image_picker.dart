@@ -7,7 +7,7 @@ class CustomImagePicker extends StatelessWidget {
   final double size;
   final BoxShape shape;
   final Border? border;
-  final String placeholder;
+  final String defaultAvatar;
 
   const CustomImagePicker({
     required this.onImagePicked,
@@ -15,7 +15,7 @@ class CustomImagePicker extends StatelessWidget {
     this.size = 100.0,
     this.shape = BoxShape.circle,
     this.border,
-    this.placeholder = 'assets/images/placeholder.png',
+    this.defaultAvatar = 'assets/images/default_avatar.png',
     super.key,
   });
 
@@ -38,7 +38,7 @@ class CustomImagePicker extends StatelessWidget {
                   fit: BoxFit.cover,
                 )
               : DecorationImage(
-                  image: AssetImage(placeholder),
+                  image: AssetImage(defaultAvatar),
                   fit: BoxFit.cover,
                 ),
         ),

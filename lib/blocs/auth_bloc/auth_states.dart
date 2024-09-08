@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../models/group_model.dart';
 import '../../models/user_model.dart';
 
 abstract class AuthState extends Equatable {
@@ -15,8 +16,9 @@ class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
   final UserModel user;
+  final List<GroupModel> groups;
 
-  const AuthAuthenticated(this.user);
+  const AuthAuthenticated(this.user, this.groups);
 
   @override
   List<Object> get props => [user];
@@ -41,3 +43,5 @@ class AuthError extends AuthState {
   @override
   List<Object> get props => [message];
 }
+
+class AuthCanceled extends AuthState {}

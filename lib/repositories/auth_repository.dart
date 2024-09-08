@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../exceptions/firebase_exception.dart';
@@ -49,9 +50,14 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw handleAuthException(e, 'Lỗi đăng nhập Google');
     } catch (e) {
-      throw Exception(
-        'Lỗi đăng nhập Google: $e',
-      );
+      if (e is PlatformException) {
+        if (e.code == 'sign_in_failed') {
+          return null;
+        }
+        throw Exception(
+          'Lỗi khi đăng nhập Google: $e',
+        );
+      }
     }
   }
 

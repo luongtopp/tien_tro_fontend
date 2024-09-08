@@ -54,7 +54,6 @@ void showBottomSheetCustom(BuildContext context, {Function(int)? onButtonTap}) {
         textStyle: AppTextStyles.filledButton,
         borderRadius: 20.r,
         onTap: () {
-          Navigator.pop(context);
           if (onButtonTap != null) onButtonTap(1);
         },
       ),
@@ -68,7 +67,6 @@ void showBottomSheetCustom(BuildContext context, {Function(int)? onButtonTap}) {
         borderRadius: 20.r,
         isBorder: true,
         onTap: () {
-          Navigator.pop(context);
           if (onButtonTap != null) onButtonTap(2);
         },
       )

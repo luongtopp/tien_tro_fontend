@@ -1,5 +1,6 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/group_model.dart';
 import '../models/member_model.dart';
 import '../exceptions/firebase_exception.dart';
@@ -24,10 +25,6 @@ class GroupRepository {
       DocumentReference docRef =
           await _firestore.collection('groups').add(group.toMap());
       await docRef.update({'id': docRef.id});
-      await _userRepository.updateLastAccessedGroupId(
-        userId: group.ownerId,
-        groupId: docRef.id,
-      );
     } on FirebaseException catch (e) {
       throw handleException(
           e: e, defaultMessage: 'Lỗi tạo nhóm', plugin: 'group');
@@ -44,27 +41,18 @@ class GroupRepository {
           .limit(1)
           .get();
       if (groupDoc.docs.isEmpty) {
-        throw FirebaseException(
-            code: 'not-found',
-            message: 'Không tìm thấy nhóm với mã này',
-            plugin: 'group');
+        throw FirebaseException(code: 'not-found', plugin: 'group');
       }
       final groupData = GroupModel.fromFirestore(groupDoc.docs.first);
       final members = groupData.members;
       if (members.any((m) => m.id == member.id)) {
-        throw FirebaseException(
-            code: 'already-joined',
-            message: 'Bạn đã tham gia nhóm này rồi',
-            plugin: 'group');
+        throw FirebaseException(code: 'already-joined', plugin: 'group');
       }
       await _firestore.collection('groups').doc(groupDoc.docs.first.id).update({
         'members': FieldValue.arrayUnion([member.toMap()]),
         'memberCount': FieldValue.increment(1),
       });
-      await _userRepository.updateLastAccessedGroupId(
-        userId: member.id,
-        groupId: groupDoc.docs.first.id,
-      );
+
       final updatedGroupDoc = await _firestore
           .collection('groups')
           .doc(groupDoc.docs.first.id)
@@ -98,10 +86,8 @@ class GroupRepository {
     try {
       await _firestore.collection('groups').doc(groupId).delete();
 
-      // Lấy danh sách nhóm của người dùng
       List<GroupModel> userGroups = await getUserGroups(_authRepository.uid!);
 
-      // Nếu có nhóm, trả về nhóm truy cập gần nhất
       if (userGroups.isNotEmpty) {
         return userGroups.first;
       } else {
@@ -119,13 +105,30 @@ class GroupRepository {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('groups').doc(groupId).get();
+
       if (!doc.exists) {
-        throw FirebaseException(
-            plugin: 'firestore',
-            code: 'not-found',
-            message: 'Không tìm thấy nhóm với ID này');
+        throw FirebaseException(plugin: 'firestore', code: 'not-found');
       }
-      return GroupModel.fromFirestore(doc);
+
+      GroupModel group = GroupModel.fromFirestore(doc);
+
+      // Cập nhật lastAccessDate cho thành viên hiện tại
+      String currentUserId = _authRepository.uid!;
+      List<MemberModel> updatedMembers = group.members.map((member) {
+        if (member.id == currentUserId) {
+          return member.copyWith(lastAccessDate: DateTime.now());
+        }
+        return member;
+      }).toList();
+
+      // Cập nhật group với danh sách thành viên mới
+      GroupModel updatedGroup = group.copyWith(members: updatedMembers);
+      await _firestore
+          .collection('groups')
+          .doc(groupId)
+          .update(updatedGroup.toMap());
+
+      return updatedGroup;
     } on FirebaseException catch (e) {
       throw handleException(
           e: e, defaultMessage: 'Lỗi tìm nạp nhóm', plugin: 'group');
@@ -148,7 +151,7 @@ class GroupRepository {
     }
   }
 
-  Future<GroupModel> getGroupByCode(String code) async {
+  Future<GroupModel?> getGroupByCode(String code) async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection('groups')
@@ -158,10 +161,7 @@ class GroupRepository {
       if (querySnapshot.docs.isNotEmpty) {
         return GroupModel.fromFirestore(querySnapshot.docs.first);
       } else {
-        throw FirebaseException(
-            plugin: 'firestore',
-            code: 'not-found',
-            message: 'Không tìm thấy nhóm với mã này');
+        throw FirebaseException(plugin: 'firestore', code: 'not-found-code');
       }
     } on FirebaseException catch (e) {
       throw handleException(
@@ -175,8 +175,7 @@ class GroupRepository {
     try {
       List<GroupModel> resultGroups = [];
 
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('groups').get();
+      QuerySnapshot querySnapshot = await _firestore.collection('groups').get();
       for (var doc in querySnapshot.docs) {
         GroupModel groupData = GroupModel.fromFirestore(doc);
         List<MemberModel> members = groupData.members;
@@ -220,14 +219,56 @@ class GroupRepository {
     }
   }
 
+  Stream<List<GroupModel>> streamUserGroups(String userId) {
+    return _firestore
+        .collection('groups')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<GroupModel> resultGroups = [];
+
+      for (var doc in snapshot.docs) {
+        GroupModel groupData = GroupModel.fromFirestore(doc);
+        List<MemberModel> members = groupData.members;
+        for (var member in members) {
+          if (member.id == userId) {
+            resultGroups.add(groupData);
+            break;
+          }
+        }
+      }
+
+      final userDoc = await _userRepository.getUserById(userId);
+      final userData = userDoc?.toMap();
+      if (userData == null) {
+        return [];
+      }
+
+      resultGroups.sort((a, b) {
+        DateTime? getLastAccessDate(GroupModel group) {
+          return group.members
+              .map((member) => member.lastAccessDate)
+              .where((date) => date != null)
+              .reduce((a, b) => a!.isAfter(b!) ? a : b);
+        }
+
+        final aLastAccess = getLastAccessDate(a);
+        final bLastAccess = getLastAccessDate(b);
+
+        if (aLastAccess == null && bLastAccess == null) return 0;
+        if (aLastAccess == null) return 1;
+        if (bLastAccess == null) return -1;
+
+        return bLastAccess.compareTo(aLastAccess);
+      });
+      return resultGroups;
+    });
+  }
+
   Future<double> getTotalGroupExpense(String groupId) async {
     try {
       final groupDoc = await _firestore.collection('groups').doc(groupId).get();
       if (!groupDoc.exists) {
-        throw FirebaseException(
-            plugin: 'firestore',
-            code: 'not-found',
-            message: 'Không tìm thấy nhóm với ID này');
+        throw FirebaseException(plugin: 'firestore', code: 'not-found');
       }
       final groupData = GroupModel.fromFirestore(groupDoc);
       double totalExpense = 0.0;
@@ -242,6 +283,65 @@ class GroupRepository {
           plugin: 'group');
     } catch (e) {
       throw Exception('Lỗi lấy tổng chi phí của nhóm: $e');
+    }
+  }
+
+  Future<void> removeMemberFromGroup(String groupId, String memberId) async {
+    try {
+      await _firestore.collection('groups').doc(groupId).update({
+        'members': FieldValue.arrayRemove([memberId]),
+        'memberCount': FieldValue.increment(-1),
+      });
+    } on FirebaseException catch (e) {
+      throw handleException(
+          e: e,
+          defaultMessage: 'Lỗi xóa thành viên khỏi nhóm',
+          plugin: 'group');
+    } catch (e) {
+      throw Exception('Lỗi xóa thành viên khỏi nhóm: $e');
+    }
+  }
+
+  Future<String> generateUniqueGroupCode() async {
+    const int codeLength = 6;
+    const int maxAttempts = 10;
+    int attempts = 0;
+
+    while (attempts < maxAttempts) {
+      String code = _generateRandomCode(codeLength);
+      bool isUnique = await _isCodeUnique(code);
+
+      if (isUnique) {
+        return code;
+      }
+
+      attempts++;
+    }
+
+    throw Exception('Không thể tạo mã nhóm duy nhất sau $maxAttempts lần thử');
+  }
+
+  String _generateRandomCode(int length) {
+    const String digits = '0123456789';
+    Random random = Random();
+    return String.fromCharCodes(
+      Iterable.generate(
+        length,
+        (_) => digits.codeUnitAt(random.nextInt(digits.length)),
+      ),
+    );
+  }
+
+  Future<bool> _isCodeUnique(String code) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('groups')
+          .where('code', isEqualTo: code)
+          .limit(1)
+          .get();
+      return querySnapshot.docs.isEmpty;
+    } catch (e) {
+      throw Exception('Lỗi kiểm tra tính duy nhất của mã: $e');
     }
   }
 }

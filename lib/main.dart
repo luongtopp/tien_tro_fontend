@@ -5,7 +5,7 @@ import 'blocs/app_bloc_providers.dart';
 import 'config/app_theme.dart';
 import 'global.dart';
 import 'repositories/app_repository_providers.dart';
-import 'routes/route_generator.dart';
+import 'routes/app_pages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +14,7 @@ void main() async {
 }
 
 void setSlowAnimations() {
-  timeDilation = 30;
+  timeDilation = 110;
 }
 
 class MyApp extends StatelessWidget {
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
             title: 'Chia sẻ tiền sinh hoạt trọ',
             debugShowCheckedModeBanner: false,
             theme: appTheme(),
-            onGenerateRoute: generateRouteSetting,
+            onGenerateRoute: AppPages.onGenerateRoute,
           );
         },
       ),

@@ -40,8 +40,7 @@ class UserRepository {
 
   Future<UserModel?> getUserById(String userId) async {
     try {
-      DocumentSnapshot doc =
-          await _firestore.collection('users').doc(userId).get();
+      final doc = await _firestore.collection('users').doc(userId).get();
       if (doc.exists) {
         return UserModel.fromFirestore(doc);
       }
@@ -67,19 +66,6 @@ class UserRepository {
           e: e,
           defaultMessage: 'Lỗi tìm nạp mã nhóm cuối cùng',
           plugin: 'user');
-    }
-  }
-
-  Future<void> updateLastAccessedGroupId(
-      {required String userId, required String groupId}) async {
-    try {
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .update({'lastAccessedGroupId': groupId});
-    } catch (e) {
-      throw handleException(
-          e: e, defaultMessage: 'Lỗi lưu mã nhóm cuối cùng', plugin: 'user');
     }
   }
 

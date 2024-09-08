@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,13 +6,12 @@ import '../../models/group_model.dart';
 import '../../models/member_model.dart';
 import '../../repositories/group_repository.dart';
 import '../../repositories/user_repository.dart';
-import 'group_event.dart';
-import 'group_state.dart';
+import 'group_events.dart';
+import 'group_states.dart';
 
 class GroupBloc extends Bloc<GroupEvent, GroupState> {
   final GroupRepository _groupRepository;
   final UserRepository _userRepository;
-  StreamSubscription<List<GroupModel>>? _groupsSubscription;
 
   GroupBloc({
     required GroupRepository groupRepository,
@@ -21,25 +19,19 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
   })  : _groupRepository = groupRepository,
         _userRepository = userRepository,
         super(GroupInitial()) {
-    on<AddGroupRequested>(_onAddGroupRequested);
-    on<JoinGroupRequested>(_onJoinGroup);
+    on<AddGroup>(_onAddGroup);
+    on<JoinGroup>(_onJoinGroup);
     on<UpdateGroup>(_onUpdateGroup);
     on<DeleteGroup>(_onDeleteGroup);
     on<FindGroupById>(_onFindGroupById);
     on<FindGroupByCode>(_onFindGroupByCode);
   }
-  @override
-  Future<void> close() {
-    _groupsSubscription?.cancel();
-    return super.close();
-  }
 
-  Future<void> _onAddGroupRequested(
-      AddGroupRequested event, Emitter<GroupState> emit) async {
+  Future<void> _onAddGroup(AddGroup event, Emitter<GroupState> emit) async {
     emit(GroupValidating());
     try {
       final user = await _userRepository.getUserById(event.userId);
-      final code = await _generateUniqueGroupCode();
+      final code = await _groupRepository.generateUniqueGroupCode();
       final newGroup = GroupModel(
         name: event.name,
         description: event.description,
@@ -66,7 +58,17 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       );
 
       await _groupRepository.createGroup(newGroup);
-      emit(GroupActionResult(message: 'Tạo nhóm thành công', group: newGroup));
+      final userGroups = await _groupRepository.getUserGroups(user.id);
+      // Lấy user mới sau khi tạo nhóm
+      final updatedUser = await _userRepository.getUserById(user.id);
+      if (updatedUser == null) {
+        throw Exception('Không thể lấy thông tin người dùng sau khi tạo nhóm');
+      }
+      emit(GroupActionCompleted(
+        user: updatedUser,
+        userGroups: userGroups,
+        group: newGroup,
+      ));
     } on FirebaseException catch (e) {
       emit(GroupError(e.message!));
     } catch (e) {
@@ -74,8 +76,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     }
   }
 
-  Future<void> _onJoinGroup(
-      JoinGroupRequested event, Emitter<GroupState> emit) async {
+  Future<void> _onJoinGroup(JoinGroup event, Emitter<GroupState> emit) async {
     emit(GroupValidating());
     try {
       final user = await _userRepository.getUserById(event.userId);
@@ -91,8 +92,14 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       );
 
       final group = await _groupRepository.joinGroup(event.code, member);
-      emit(
-          GroupActionResult(message: 'Tham gia nhóm thành công', group: group));
+      final userGroups = await _groupRepository.getUserGroups(user.id);
+      final updatedUser = await _userRepository.getUserById(user.id);
+      if (updatedUser == null) {
+        throw Exception(
+            'Không thể lấy thông tin người dùng sau khi tham gia nhóm');
+      }
+      emit(GroupActionCompleted(
+          user: updatedUser, userGroups: userGroups, group: group));
     } on FirebaseException catch (e) {
       emit(GroupError(e.message!));
     } catch (e) {
@@ -154,11 +161,19 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     }
   }
 
-  Future<String> _generateUniqueGroupCode() async {
-    String code;
-    do {
-      code = List.generate(6, (_) => Random().nextInt(10)).join();
-    } while (await _groupRepository.getGroupByCode(code) != null);
-    return code;
+  Future<void> _onRemoveMember(
+      RemoveMemberFromGroup event, Emitter<GroupState> emit) async {
+    emit(GroupValidating());
+    try {
+      await _groupRepository.removeMemberFromGroup(
+          event.groupId, event.memberId);
+      final updatedGroup = await _groupRepository.getGroupById(event.groupId);
+      emit(GroupActionResult(
+          message: "Xóa thành viên khỏi nhóm thành công", group: updatedGroup));
+    } on FirebaseException catch (e) {
+      emit(GroupError(e.message ?? 'Lỗi khi xóa thành viên khỏi nhóm'));
+    } catch (e) {
+      emit(GroupError('Xóa thành viên khỏi nhóm thất bại: ${e.toString()}'));
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -6,7 +7,10 @@ import '../../config/text_styles.dart';
 
 Widget buttonLoginGoogle(void Function() ontap) {
   return GestureDetector(
-    onTap: ontap,
+    onTap: () {
+      HapticFeedback.mediumImpact();
+      ontap();
+    },
     child: SizedBox(
       width: 333.w,
       height: 85.h,
@@ -49,7 +53,10 @@ Widget textButton({
 
 Widget textButtonSignUp(void Function() ontap) {
   return InkWell(
-    onTap: ontap,
+    onTap: () {
+      HapticFeedback.mediumImpact();
+      ontap();
+    },
     child: const Wrap(
       children: <Widget>[
         Text(

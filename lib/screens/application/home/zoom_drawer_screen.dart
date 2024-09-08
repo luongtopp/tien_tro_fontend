@@ -1,53 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
-import '../../../blocs/group_bloc/group_bloc.dart';
-import '../../../blocs/group_bloc/group_event.dart';
-import '../../../blocs/group_bloc/group_state.dart';
 import '../../../models/group_model.dart';
 import '../../../models/user_model.dart';
-import '../../../utils/loading_overlay.dart';
-import '../../../utils/snackbar_utils.dart';
 import '../group/group_screen.dart';
 import 'home_screen.dart';
-import 'main_drawer.dart';
+import 'menu_drawer.dart';
 
-class ZoomDrawerScreen extends StatefulWidget {
-  const ZoomDrawerScreen({Key? key}) : super(key: key);
+class ZoomDrawerScreen extends StatelessWidget {
+  final UserModel user;
+  final List<GroupModel> groups;
 
-  @override
-  State<ZoomDrawerScreen> createState() => _ZoomDrawerScreenState();
-}
-
-class _ZoomDrawerScreenState extends State<ZoomDrawerScreen> {
-  UserModel? user;
-  bool _isInitialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      _initializeUser();
-      _isInitialized = true;
-    }
-  }
-
-  void _initializeUser() {
-    final args = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-    user = args[0];
-    if (user!.lastAccessedGroupId != null) {
-      context.read<GroupBloc>().add(StreamGroup(user!.id));
-    }
-  }
+  const ZoomDrawerScreen({
+    super.key,
+    required this.user,
+    required this.groups,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return user!.lastAccessedGroupId != null
+    return groups.isNotEmpty
         ? ZoomDrawer(
             style: DrawerStyle.defaultStyle,
-            mainScreen: HomeScreen(user: user!),
-            menuScreen: MainDrawer(user: user!),
+            mainScreen: HomeScreen(user: user),
+            menuScreen: MenuDrawer(user: user, groups: groups),
             menuScreenWidth: 240.w,
             slideWidth: 430.w * 0.75,
             borderRadius: 30.r,
@@ -58,6 +34,6 @@ class _ZoomDrawerScreenState extends State<ZoomDrawerScreen> {
             angle: 0.0,
             menuBackgroundColor: const Color.fromARGB(255, 1, 67, 95),
           )
-        : HomeScreen(user: user!);
+        : GroupScreen(user: user);
   }
 }

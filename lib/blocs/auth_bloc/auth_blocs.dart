@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../models/user_model.dart';
 import '../../repositories/auth_repository.dart';
+import '../../repositories/group_repository.dart';
 import '../../repositories/user_repository.dart';
 import 'auth_events.dart';
 import 'auth_states.dart';
@@ -10,12 +11,15 @@ import 'auth_states.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
   final UserRepository _userRepository;
+  final GroupRepository _groupRepository;
 
   AuthBloc({
     required AuthRepository authRepository,
     required UserRepository userRepository,
+    required GroupRepository groupRepository,
   })  : _authRepository = authRepository,
         _userRepository = userRepository,
+        _groupRepository = groupRepository,
         super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<LoginWithGoogleRequested>(_onLoginWithGoogleRequested);
@@ -38,7 +42,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _userRepository.getUserById(user.uid);
         if (userModel != null) {
-          emit(AuthAuthenticated(userModel));
+          final groups = await _groupRepository.getUserGroups(userModel.id);
+          emit(AuthAuthenticated(userModel, groups));
         }
       } else {
         throw FirebaseAuthException(
@@ -71,8 +76,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
           await _userRepository.createUser(userModel);
         }
-        emit(AuthAuthenticated(userModel));
+        final groups = await _groupRepository.getUserGroups(userModel.id);
+        emit(AuthAuthenticated(userModel, groups));
       }
+      emit(AuthCanceled());
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message!));
     } catch (e) {
@@ -116,6 +123,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           email: user.email!,
         );
         await _userRepository.createUser(userModel);
+
         emit(const AuthSuccess(
             'Một email đã được gửi đến email của bạn. Nhấp vào liên kết để xác thực.'));
       }
@@ -149,7 +157,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (currentUser != null) {
         final userModel = await _userRepository.getUserById(currentUser.uid);
         if (userModel != null) {
-          emit(AuthAuthenticated(userModel));
+          final groups = await _groupRepository.getUserGroups(userModel.id);
+          emit(AuthAuthenticated(userModel, groups));
         } else {
           throw FirebaseException(
             plugin: 'auth',

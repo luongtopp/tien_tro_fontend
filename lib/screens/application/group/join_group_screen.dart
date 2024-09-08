@@ -1,20 +1,26 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-import '../../../blocs/group_bloc/group_bloc.dart';
-import '../../../blocs/group_bloc/group_event.dart';
+import '../../../blocs/group_bloc/group_blocs.dart';
+import '../../../blocs/group_bloc/group_events.dart';
+import '../../../blocs/group_bloc/group_states.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
 import '../../../models/user_model.dart';
+import '../../../routes/app_route.dart';
+import '../../../utils/loading_overlay.dart';
+import '../../../utils/snackbar_utils.dart';
 import '../../../widgets/appbars/custom_appbar.dart';
 import '../../../widgets/buttons/custom_button.dart';
 
 class JoinGroupScreen extends StatefulWidget {
-  final UserModel? user;
-  const JoinGroupScreen({super.key, this.user});
+  final UserModel user;
+  const JoinGroupScreen({super.key, required this.user});
 
   @override
   State<JoinGroupScreen> createState() => _JoinGroupScreenState();
@@ -23,49 +29,92 @@ class JoinGroupScreen extends StatefulWidget {
 class _JoinGroupScreenState extends State<JoinGroupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _codeController = TextEditingController();
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    userId = widget.user.id;
+  }
+
   @override
   void dispose() {
+    _codeController.dispose();
     super.dispose();
   }
 
   void _submitJoinGroup() {
+    userId = widget.user.id;
+
     if (_formKey.currentState!.validate()) {
-      context.read<GroupBloc>().add(JoinGroupRequested(
-            userId: widget.user!.id,
+      context.read<GroupBloc>().add(JoinGroup(
+            userId: userId!,
             code: _codeController.text,
           ));
     }
   }
 
+  void _handleGroupState(BuildContext context, GroupState state) {
+    switch (state) {
+      case GroupValidating():
+        LoadingOverlay.show(context);
+        break;
+      case GroupActionCompleted():
+        LoadingOverlay.hide();
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.ZOOM_DRAWER_SCREEN,
+          (Route<dynamic> route) => false,
+          arguments: [state.user, state.userGroups],
+        );
+        break;
+      case GroupError():
+        LoadingOverlay.hide();
+        showCustomSnackBar(context, state.error, type: SnackBarType.error);
+        break;
+      default:
+        LoadingOverlay.hide();
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: CustomAppBar(
-        title: "Tham gia nhóm",
-        leadingIcon: Icons.arrow_back_ios_new_rounded,
-        iconColor: AppColors.primaryColor,
-        func: () => Navigator.of(context).pop(),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-                  Text(
-                    'Nhập mã nhóm',
-                    style: AppTextStyles.subheading,
+    return BlocListener<GroupBloc, GroupState>(
+      listener: (context, state) {
+        _handleGroupState(context, state);
+      },
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          appBar: CustomAppBar(
+            title: "Tham gia nhóm",
+            leadingIcon: Icons.arrow_back_ios_new_rounded,
+            iconColor: AppColors.primaryColor,
+            func: () => Navigator.of(context).pop(),
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.2),
+                      Text(
+                        'Nhập mã nhóm',
+                        style: AppTextStyles.subheading,
+                      ),
+                      SizedBox(height: 16.h),
+                      _buildPinCodeTextField(),
+                      SizedBox(height: 24.h),
+                      _buildJoinButton(),
+                    ],
                   ),
-                  SizedBox(height: 16.h),
-                  _buildPinCodeTextField(),
-                  SizedBox(height: 24.h),
-                  _buildJoinButton(),
-                ],
+                ),
               ),
             ),
           ),
@@ -76,6 +125,18 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
   Widget _buildPinCodeTextField() {
     return PinCodeTextField(
+      dialogConfig: DialogConfig(
+        dialogTitle: 'Mã nhóm',
+        dialogContent: 'Bạn có muốn dán mã',
+        affirmativeText: 'Dán mã',
+        negativeText: 'Hủy',
+        // platform: PinCodePlatform.other,
+      ),
+      pastedTextStyle: const TextStyle(
+        color: AppColors.primaryColor,
+        fontWeight: FontWeight.normal,
+        fontSize: 16,
+      ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Mã nhóm không được để trống';

@@ -67,7 +67,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           title: 'Quên mật khẩu',
           leadingIcon: Icons.arrow_back_ios_new_rounded,
           iconColor: AppColors.primaryColor,
-          funcOption: () => Navigator.of(context).pop(),
+          func: () {
+            Navigator.of(context).pop();
+          },
         ),
         body: SafeArea(
           child: SingleChildScrollView(

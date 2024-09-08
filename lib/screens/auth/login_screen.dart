@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
         LoadingOverlay.hide();
         Navigator.of(context).pushReplacementNamed(
           AppRoutes.ZOOM_DRAWER_SCREEN,
-          arguments: [state.user],
+          arguments: [state.user, state.groups],
         );
         break;
       case AuthError():
@@ -51,6 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
         showCustomSnackBar(context, state.message, type: SnackBarType.error);
         break;
       case AuthSuccess():
+        LoadingOverlay.hide();
+        break;
+      case AuthCanceled():
         LoadingOverlay.hide();
         break;
       default:
