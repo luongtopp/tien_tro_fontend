@@ -11,12 +11,12 @@ Widget formattedAmount(double amount, {bool isTotalExpense = false}) {
   return Text(
     formattedAmount,
     style: isTotalExpense
-        ? AppTextStyles.body.copyWith(
+        ? AppTextStyles.bodyMedium.copyWith(
             fontSize: 20,
             fontWeight: FontWeight.w500,
             color: AppColors.primaryColor,
           )
-        : AppTextStyles.body.copyWith(
+        : AppTextStyles.bodyRegular.copyWith(
             color: amount >= 0 ? Colors.green : Colors.red,
           ),
   );

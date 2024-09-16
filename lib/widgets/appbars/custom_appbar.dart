@@ -16,9 +16,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? iconColor;
   final bool? isTransparent;
   final IconData? actionIcon;
+
   final bool disableBackdropFilter;
   final TextStyle? titleStyle;
   final bool disableBlurOnScroll;
+
+  final Color? actionIconColor;
+  final Widget? customAction;
 
   const CustomAppBar({
     super.key,
@@ -33,6 +37,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.disableBackdropFilter = false,
     this.titleStyle,
     this.disableBlurOnScroll = false,
+    this.actionIconColor,
+    this.customAction,
   }) : iconColor = iconColor ?? AppColors.backgroundColor;
 
   @override
@@ -43,16 +49,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? Colors.transparent
           : backgroundColor ?? AppColors.backgroundColor,
       elevation: 0,
-      flexibleSpace: disableBackdropFilter
-          ? null
-          : ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  color: Colors.white.withOpacity(0),
-                ),
-              ),
-            ),
+      // flexibleSpace: disableBackdropFilter
+      //     ? null
+      //     : ClipRect(
+      //         child: BackdropFilter(
+      //           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      //           child: Container(
+      //             color: Colors.white.withOpacity(0),
+      //           ),
+      //         ),
+      //       ),
       leading: GestureDetector(
         onTap: () {
           HapticFeedback.mediumImpact();
@@ -64,20 +70,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            funcOption?.call();
-          },
-          child: Container(
-            padding: EdgeInsets.only(right: 15.w),
-            child: Icon(actionIcon ?? Icons.more_vert_rounded,
-                color: AppColors.backgroundColor),
+        if (customAction != null)
+          customAction!
+        else
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              funcOption?.call();
+            },
+            child: Container(
+              padding: EdgeInsets.only(right: 15.w),
+              child: Icon(actionIcon ?? Icons.more_vert_rounded,
+                  color: actionIconColor ?? AppColors.backgroundColor),
+            ),
           ),
-        ),
       ],
       centerTitle: true,
-      title: Text(title, style: titleStyle ?? AppTextStyles.titleStyle),
+      title: Text(title, style: titleStyle ?? AppTextStyles.titleLarge),
     );
   }
 

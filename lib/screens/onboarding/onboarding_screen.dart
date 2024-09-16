@@ -126,7 +126,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                 Text(
                   headingText,
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.titleStyle,
+                  style: AppTextStyles.titleLarge,
                 ),
                 SizedBox(height: 15.h),
                 Text(

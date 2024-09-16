@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="chia_se_tien_sinh_hoat_tro"
+        android:label="Tiền Trọ"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

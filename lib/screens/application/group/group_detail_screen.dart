@@ -79,11 +79,8 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                   IconButton(
                     icon: const Icon(Icons.copy_rounded),
                     onPressed: () {
-                      HapticFeedback.mediumImpact(); // Thêm phản hồi haptic
+                      HapticFeedback.mediumImpact();
                       Clipboard.setData(ClipboardData(text: value));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đã sao chép mã nhóm')),
-                      );
                     },
                   ),
               ],

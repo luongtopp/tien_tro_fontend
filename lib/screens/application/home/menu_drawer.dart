@@ -1,11 +1,10 @@
+import 'package:chia_se_tien_sinh_hoat_tro/screens/application/setting/setting_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:flutter/services.dart'; // Add this import
 
-import '../../../blocs/auth_bloc/auth_blocs.dart';
-import '../../../blocs/auth_bloc/auth_events.dart';
 import '../../../blocs/group_bloc/group_blocs.dart';
 import '../../../blocs/group_bloc/group_events.dart';
 import '../../../config/app_color.dart';
@@ -13,7 +12,6 @@ import '../../../config/text_styles.dart';
 import '../../../models/group_model.dart';
 import '../../../models/user_model.dart';
 import '../../../routes/app_route.dart';
-import '../../../widgets/dialogs/dialog_custom.dart';
 import '../../../widgets/drawer/drawer_widget.dart';
 
 class MenuDrawer extends StatefulWidget {
@@ -49,7 +47,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
               SizedBox(height: 8.h),
               Expanded(child: _buildGroupList()),
               SizedBox(height: 90.h),
-              _buildLogoutTile(),
+              _buildSettingsTile(), // Add this line
             ],
           ),
         ),
@@ -80,7 +78,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
       child: ListTile(
         leading:
             const Icon(Icons.group_rounded, color: AppColors.iconDrawerColor),
-        title: Text('Nhóm', style: AppTextStyles.textItemDrawer, maxLines: 1),
+        title: Text('Nhóm',
+            style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
+            maxLines: 1),
         trailing:
             const Icon(Icons.add_rounded, color: AppColors.iconDrawerColor),
         onTap: () {
@@ -165,44 +165,19 @@ class _MenuDrawerState extends State<MenuDrawer> {
     ZoomDrawer.of(context)!.toggle();
   }
 
-  Widget _buildLogoutTile() {
+  Widget _buildSettingsTile() {
     return ListTile(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.r),
       ),
-      leading:
-          const Icon(Icons.logout_rounded, color: AppColors.iconDrawerColor),
-      title: Text('Đăng xuất', style: AppTextStyles.textItemDrawer),
+      leading: const Icon(Icons.settings, color: AppColors.iconDrawerColor),
+      title: Text('Cài đặt',
+          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
       onTap: () {
         HapticFeedback.mediumImpact();
-        _showLogoutDialog();
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => SettingScreen()));
       },
     );
-  }
-
-  void _showLogoutDialog() {
-    HapticFeedback.mediumImpact();
-    showDialogCustom(
-      context: context,
-      textTitle: 'Đăng xuất',
-      textContent: 'Bạn thực sự muốn đăng xuất khỏi ứng dụng?',
-      textAction: ['Đăng xuất', 'Hủy'],
-      action: [
-        () {
-          HapticFeedback.mediumImpact();
-          _logout();
-        },
-        () {
-          HapticFeedback.mediumImpact();
-          Navigator.of(context).pop();
-        },
-      ],
-    );
-  }
-
-  void _logout() {
-    context.read<AuthBloc>().add(LogoutRequested());
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil(AppRoutes.LOGIN, (route) => false);
   }
 }

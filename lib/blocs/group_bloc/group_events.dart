@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../models/expense_model.dart';
 import '../../models/group_model.dart';
 
 abstract class GroupEvent extends Equatable {
@@ -59,4 +60,11 @@ class FindGroupByCode extends GroupEvent {
   const FindGroupByCode(this.code);
   @override
   List<Object> get props => [code];
+}
+
+class ExpenseAdded extends GroupEvent {
+  final ExpenseModel expense;
+  const ExpenseAdded(this.expense);
+  @override
+  List<Object> get props => [expense];
 }

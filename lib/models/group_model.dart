@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'member_model.dart';
+import 'expense_model.dart';
 
 class GroupModel {
   final String? id;
@@ -15,6 +16,7 @@ class GroupModel {
   final DateTime createdDate;
   final List<MemberModel> members;
   final int memberCount;
+  final List<ExpenseModel> expenses;
 
   GroupModel({
     this.id,
@@ -29,6 +31,7 @@ class GroupModel {
     required this.createdDate,
     required this.members,
     required this.memberCount,
+    required this.expenses,
   });
 
   factory GroupModel.fromFirestore(DocumentSnapshot doc) {
@@ -51,6 +54,11 @@ class GroupModel {
                 .toList() ??
             [],
         memberCount: data['memberCount'] as int? ?? 0,
+        expenses: (data['expenses'] as List<dynamic>?)
+                ?.map((item) =>
+                    ExpenseModel.fromMap(item as Map<String, dynamic>))
+                .toList() ??
+            [],
       );
     } on Exception catch (e) {
       throw Exception('Lỗi tạo nhóm từ firestore: $e');
@@ -70,6 +78,7 @@ class GroupModel {
       'createdDate': Timestamp.fromDate(createdDate),
       'members': members.map((member) => member.toMap()).toList(),
       'memberCount': memberCount,
+      'expenses': expenses.map((expense) => expense.toMap()).toList(),
     };
   }
 
@@ -86,6 +95,7 @@ class GroupModel {
     DateTime? createdDate,
     List<MemberModel>? members,
     int? memberCount,
+    List<ExpenseModel>? expenses,
   }) {
     return GroupModel(
       id: id ?? this.id,
@@ -101,6 +111,7 @@ class GroupModel {
       createdDate: createdDate ?? this.createdDate,
       members: members ?? this.members,
       memberCount: memberCount ?? this.memberCount,
+      expenses: expenses ?? this.expenses,
     );
   }
 }

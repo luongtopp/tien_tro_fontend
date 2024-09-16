@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
 import '../../../blocs/group_bloc/group_stream_blocs.dart';
@@ -21,10 +22,7 @@ import '../notification/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final UserModel user;
-  const HomeScreen({
-    super.key,
-    required this.user,
-  });
+  const HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -34,38 +32,80 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     context.read<GroupStreamBloc>().add(StreamGroup(widget.user.id));
 
     return BlocBuilder<GroupStreamBloc, GroupStreamState>(
       builder: (context, state) {
-        if (state is GroupStreamLoaded) {
-          return _buildMainUI(state.groupsModel.first);
-        }
-
         return Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.backgroundColorLinear,
-          ),
+          decoration:
+              const BoxDecoration(gradient: AppColors.backgroundColorLinear),
           child: Scaffold(
             backgroundColor: Colors.transparent,
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: AppColors.backgroundColorLinear,
-              ),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.primaryColor,
+            body: state is GroupStreamLoaded
+                ? _buildMainUI(state.groupsModel.first)
+                : const Center(
+                    child: CircularProgressIndicator(
+                        color: AppColors.primaryColor)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMainUI(GroupModel group) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: _buildCustomAppBar(group),
+      body: Padding(
+        padding: const EdgeInsets.all(Dimensions.paddingMedium),
+        child: _buildBody(group),
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
+      floatingActionButton: _buildFloatingActionButton(group),
+    );
+  }
+
+  CustomAppBar _buildCustomAppBar(GroupModel group) {
+    return CustomAppBar(
+      backgroundColor: Colors.transparent,
+      disableBlurOnScroll: true,
+      disableBackdropFilter: true,
+      iconColor: Colors.white,
+      leadingIcon: Icons.menu_rounded,
+      actionIcon: Icons.more_vert_rounded,
+      title: group.name,
+      titleStyle: AppTextStyles.titleLarge.copyWith(color: Colors.white),
+      func: () {
+        HapticFeedback.mediumImpact();
+        ZoomDrawer.of(context)!.toggle();
+      },
+      funcOption: () => _showOptionsDialog(group),
+    );
+  }
+
+  void _showOptionsDialog(GroupModel group) {
+    HapticFeedback.mediumImpact();
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+          alignment: const Alignment(0.8, -0.8),
+          child: Material(
+            type: MaterialType.transparency,
+            child: SafeArea(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      top: kToolbarHeight - 10.h,
+                      right: Dimensions.paddingMedium),
+                  child: _buildPopupMenuItems(context, group),
                 ),
               ),
             ),
@@ -75,103 +115,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMainUI(GroupModel group) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.backgroundColorLinear,
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: CustomAppBar(
-          backgroundColor: Colors.transparent,
-          disableBlurOnScroll: true,
-          disableBackdropFilter: true,
-          iconColor: Colors.white,
-          leadingIcon: Icons.menu_rounded,
-          actionIcon: Icons.more_vert_rounded,
-          title: group.name,
-          titleStyle: AppTextStyles.titleStyle.copyWith(
-            color: Colors.white,
-          ),
-          func: () {
-            HapticFeedback.mediumImpact(); // Add this line
-            ZoomDrawer.of(context)!.toggle();
-          },
-          funcOption: () {
-            HapticFeedback.mediumImpact(); // Add this line
-            showGeneralDialog(
-              context: context,
-              barrierDismissible: true,
-              barrierLabel:
-                  MaterialLocalizations.of(context).modalBarrierDismissLabel,
-              barrierColor: Colors.black54,
-              transitionDuration: const Duration(milliseconds: 300),
-              pageBuilder: (BuildContext context, Animation<double> animation,
-                  Animation<double> secondaryAnimation) {
-                return ScaleTransition(
-                  scale: CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  ),
-                  alignment: const Alignment(0.8, -0.8),
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: SafeArea(
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              top: kToolbarHeight - 10.h,
-                              right: Dimensions.paddingMedium),
-                          child: _buildPopupMenuItems(context, group),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-        body: Padding(
-          padding: const EdgeInsets.only(
-              left: Dimensions.paddingMedium,
-              right: Dimensions.paddingMedium,
-              top: Dimensions.paddingMedium),
-          child: _buildBody(group),
-        ),
-        bottomNavigationBar: _buildBottomNavigationBar(),
-        floatingActionButton: ElevatedButton(
-          onPressed: () {
-            HapticFeedback.mediumImpact();
-          },
-          style: ElevatedButton.styleFrom(
-            shadowColor: Colors.black,
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10), // Bo góc cho nút
-            ),
-          ),
-          child: Text('Nhấn vào tôi'),
-        ),
-      ),
-    );
-  }
-
   Widget _buildBody(GroupModel groupModel) {
     switch (_selectedIndex) {
       case 0:
-        return GroupManagementScreen(
-          groupModel: groupModel,
-        );
+        return GroupManagementScreen(groupModel: groupModel);
       case 1:
         return const ExpenseScreen();
       case 2:
         return const NotificationScreen();
       case 3:
-        return GroupDetailScreen(
-          groupModel: groupModel,
-        );
+        return GroupDetailScreen(groupModel: groupModel);
       default:
         return const SizedBox.shrink();
     }
@@ -181,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
       onTap: (index) {
-        HapticFeedback.mediumImpact(); // Add this line
+        HapticFeedback.mediumImpact();
         setState(() {
           _selectedIndex = index;
         });
@@ -214,6 +167,70 @@ class _HomeScreenState extends State<HomeScreen> {
         color: _selectedIndex == index ? AppColors.primaryColor : Colors.grey,
       ),
       label: label,
+    );
+  }
+
+  Widget? _buildFloatingActionButton(GroupModel group) {
+    if (_selectedIndex != 0 && _selectedIndex != 1) return null;
+    return SpeedDial(
+      onOpen: () {
+        HapticFeedback.mediumImpact();
+      },
+      onClose: () {
+        HapticFeedback.mediumImpact();
+      },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+      icon: Icons.add_rounded,
+      activeIcon: Icons.close_rounded,
+      animatedIconTheme: const IconThemeData(size: 22.0),
+      backgroundColor: const Color.fromARGB(255, 255, 172, 6),
+      foregroundColor: Colors.white,
+      activeForegroundColor: Colors.white,
+      activeBackgroundColor: Colors.red,
+      overlayColor: Colors.black,
+      overlayOpacity: 0.2,
+      elevation: 0,
+      visible: true,
+      curve: Curves.linear,
+      childMargin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+      spacing: 15,
+      children: [
+        _buildSpeedDialChild(
+          icon: Icons.add_shopping_cart_rounded,
+          label: 'Thêm chi tiêu',
+          color: Colors.blue,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ExpenseScreen()),
+            );
+          },
+        ),
+        _buildSpeedDialChild(
+          icon: Icons.payment_rounded,
+          label: 'Trả nợ',
+          color: Colors.green,
+          onTap: () {/* Add new member */},
+        ),
+      ],
+    );
+  }
+
+  SpeedDialChild _buildSpeedDialChild({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return SpeedDialChild(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(19.r)),
+      child: Icon(icon, color: color),
+      backgroundColor: Colors.white,
+      onTap: onTap,
+      label: label,
+      labelStyle:
+          const TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+      labelBackgroundColor: color,
     );
   }
 
@@ -286,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
       leading: Icon(icon, color: Colors.white),
       title: Text(title, style: const TextStyle(color: Colors.white)),
       onTap: () {
-        HapticFeedback.mediumImpact(); // Add this line
+        HapticFeedback.mediumImpact();
         onTap();
       },
     );

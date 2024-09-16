@@ -1,0 +1,79 @@
+{
+  "@@last_modified": "2024-09-16T22:24:43.434650",
+  "amount": "Amount",
+  "@amount": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "expenseName": "Expense Name",
+  "@expenseName": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "settings": "Settings",
+  "@settings": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "options": "Options",
+  "@options": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "language": "Language",
+  "@language": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "vietnamese": "Vietnamese",
+  "@vietnamese": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "english": "English",
+  "@english": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "logoutConfirmationTitle": "Logout Confirmation",
+  "@logoutConfirmationTitle": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "logoutConfirmationMessage": "This action cannot be undone.",
+  "@logoutConfirmationMessage": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "logout": "Logout",
+  "@logout": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "termsOfService": "Terms of Service",
+  "@termsOfService": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "appVersion": "App Version",
+  "@appVersion": {
+    "type": "text",
+    "placeholders": {}
+  }
+  
+}

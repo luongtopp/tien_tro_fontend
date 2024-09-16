@@ -173,7 +173,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
       children: [
         Text(
           'Chọn thành viên để xóa',
-          style: AppTextStyles.body,
+          style: AppTextStyles.bodyRegular,
         ),
         SizedBox(height: 8.h),
         SizedBox(
@@ -196,9 +196,13 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
             blendMode: BlendMode.dstOut,
             child: ListView.builder(
               padding: EdgeInsets.only(bottom: 100.h),
-              itemCount: originalMembers.length,
+              itemCount: originalMembers
+                  .where((member) => member.role != "owner")
+                  .length,
               itemBuilder: (context, index) {
-                final member = originalMembers[index];
+                final member = originalMembers
+                    .where((member) => member.role != "owner")
+                    .toList()[index];
                 return Card(
                   elevation: 0,
                   margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
@@ -218,7 +222,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
                               as ImageProvider,
                       radius: 20,
                     ),
-                    title: Text(member.name, style: AppTextStyles.body),
+                    title: Text(member.name, style: AppTextStyles.bodyRegular),
                     subtitle: formattedAmount(member.balance),
                     trailing: IconButton(
                       icon: Icon(

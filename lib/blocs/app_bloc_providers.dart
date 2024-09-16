@@ -9,6 +9,7 @@ import '../repositories/user_repository.dart';
 import 'auth_bloc/auth_blocs.dart';
 import 'group_bloc/group_stream_blocs.dart';
 import 'onboarding_bloc/onboarding_blocs.dart';
+import 'setting_bloc/setting_blocs.dart';
 
 MultiBlocProvider appBlocProviders(BuildContext context, Widget child) {
   return MultiBlocProvider(
@@ -39,6 +40,9 @@ MultiBlocProvider appBlocProviders(BuildContext context, Widget child) {
         create: (context) => GroupStreamBloc(
           groupRepository: RepositoryProvider.of<GroupRepository>(context),
         ),
+      ),
+      BlocProvider<SettingBloc>(
+        create: (context) => SettingBloc(),
       ),
     ],
     child: child,

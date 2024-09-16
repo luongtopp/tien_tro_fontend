@@ -84,7 +84,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                       isTotalExpense: true)
                   : Text(
                       '******',
-                      style: AppTextStyles.body.copyWith(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         color: AppColors.primaryColor,
@@ -119,7 +119,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
       alignment: Alignment.centerLeft,
       child: Text(
         "Danh sách thành viên",
-        style: AppTextStyles.heading.copyWith(color: Colors.white),
+        style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
       ),
     );
   }
@@ -127,20 +127,21 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
   Widget _buildMemberList() {
     return ShaderMask(
       shaderCallback: (Rect rect) {
-        return LinearGradient(
+        return const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
             Colors.white,
             Colors.white,
             Colors.white,
-            Colors.white.withOpacity(0.8),
-            Colors.white.withOpacity(0.6),
-            Colors.white.withOpacity(0.4),
-            Colors.white.withOpacity(0.2),
             Colors.transparent,
           ],
-          stops: const [0.0, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0],
+          stops: [
+            0.0,
+            0.5,
+            0.8,
+            1.0,
+          ],
         ).createShader(rect);
       },
       blendMode: BlendMode.dstIn,
@@ -148,10 +149,11 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
         controller: _scrollController,
         itemCount: widget.groupModel.members.length,
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.only(bottom: 100.h),
+        padding: EdgeInsets.only(bottom: 120.h),
         itemBuilder: (context, index) {
           final member = widget.groupModel.members[index];
           return Card(
+            clipBehavior: Clip.antiAliasWithSaveLayer,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
             ),
@@ -162,11 +164,11 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
                     member.avatarUrl ?? 'assets/images/default_avatar.png'),
                 radius: 20.r,
               ),
-              title: Text(member.name, style: AppTextStyles.body),
+              title: Text(member.name, style: AppTextStyles.bodyRegular),
               subtitle: formattedAmount(member.balance),
               trailing: Text(
                 member.role == 'owner' ? 'Trưởng nhóm' : 'Thành viên',
-                style: AppTextStyles.body.copyWith(
+                style: AppTextStyles.bodyRegular.copyWith(
                   color: member.role == 'owner'
                       ? AppColors.primaryColor
                       : Colors.grey,

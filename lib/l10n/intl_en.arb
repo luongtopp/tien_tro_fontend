@@ -1,0 +1,18 @@
+{
+  "settings": "Settings",
+  "options": "Options",
+  "notifications": "Notifications",
+  "language": "Language",
+  "vietnamese": "Vietnamese",
+  "english": "English",
+  "amount": "Amount",
+  "expenseName": "Expense Name",
+  "logoutConfirmationTitle": "Logout Confirmation",
+  "logoutConfirmationMessage": "This action cannot be undone.",
+  "logout": "Logout",
+  "cancel": "Cancel",
+  "termsOfService": "Terms of Service",
+  "privacyPolicy": "Privacy Policy",
+  "appVersion": "App Version"
+  
+}

@@ -117,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
         width: 238.w,
         height: 236.h,
         decoration: const BoxDecoration(
+          shape: BoxShape.circle,
           image: DecorationImage(
             image: AssetImage('assets/images/logo.png'),
           ),

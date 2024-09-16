@@ -22,9 +22,11 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     on<AddGroup>(_onAddGroup);
     on<JoinGroup>(_onJoinGroup);
     on<UpdateGroup>(_onUpdateGroup);
+
     on<DeleteGroup>(_onDeleteGroup);
     on<FindGroupById>(_onFindGroupById);
     on<FindGroupByCode>(_onFindGroupByCode);
+    // on<ExpenseAdded>(_onExpenseAdded);
   }
 
   Future<void> _onAddGroup(AddGroup event, Emitter<GroupState> emit) async {
@@ -55,6 +57,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
         ],
         ownerId: user.id,
         memberCount: 1,
+        expenses: [],
       );
 
       await _groupRepository.createGroup(newGroup);
@@ -176,4 +179,16 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       emit(GroupError('Xóa thành viên khỏi nhóm thất bại: ${e.toString()}'));
     }
   }
+
+  // Future<void> _onExpenseAdded(
+  //     ExpenseAdded event, Emitter<GroupState> emit) async {
+  //   emit(GroupValidating());
+  //   try {
+  //     await _groupRepository.addExpenseToGroup(event.expense.id, event.expense);
+  //   } on FirebaseException catch (e) {
+  //     emit(GroupError(e.message ?? 'Lỗi khi thêm chi phí vào nhóm'));
+  //   } catch (e) {
+  //     emit(GroupError('Thêm chi phí vào nhóm thất bại: ${e.toString()}'));
+  //   }
+  // }
 }

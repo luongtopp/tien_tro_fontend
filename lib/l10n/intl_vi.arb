@@ -1,0 +1,17 @@
+{
+  "settings": "Cài đặt",
+  "options": "Tùy chọn",
+  "notifications": "Thông báo",
+  "language": "Ngôn ngữ",
+  "vietnamese": "Tiếng Việt",
+  "english": "Tiếng Anh",
+  "amount": "Số tiền",
+  "expenseName": "Tên chi phí",
+  "logoutConfirmationTitle": "Xác nhận đăng xuất",
+  "logoutConfirmationMessage": "Hành động này không thể hoàn tác.",
+  "logout": "Đăng xuất",
+  "cancel": "Hủy",
+  "termsOfService": "Điều khoản dịch vụ",
+  "privacyPolicy": "Chính sách bảo mật",
+  "appVersion": "Phiên bản ứng dụng"
+}
