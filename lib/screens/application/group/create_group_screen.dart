@@ -7,6 +7,7 @@ import '../../../blocs/group_bloc/group_events.dart';
 import '../../../blocs/group_bloc/group_states.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
+import '../../../generated/l10n.dart';
 import '../../../models/user_model.dart';
 import '../../../routes/app_route.dart';
 import '../../../utils/loading_overlay.dart';
@@ -53,6 +54,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   }
 
   void _handleGroupState(BuildContext context, GroupState state) {
+    final s = S.of(context);
     switch (state) {
       case GroupValidating():
         LoadingOverlay.show(context);
@@ -77,6 +79,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<GroupBloc, GroupState>(
       listener: (context, state) {
         _handleGroupState(context, state);
@@ -84,7 +87,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: CustomAppBar(
-          title: "Tạo nhóm",
+          title: s.createGroup,
           leadingIcon: Icons.arrow_back_ios_new_rounded,
           iconColor: AppColors.primaryColor,
           func: () => Navigator.of(context).pop(),
@@ -98,11 +101,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: 89.h),
-                  _buildNameField(),
+                  _buildNameField(s),
                   SizedBox(height: 24.h),
-                  _buildDescriptionField(),
+                  _buildDescriptionField(s),
                   SizedBox(height: 48.h),
-                  _buildSubmitButton(),
+                  _buildSubmitButton(s),
                 ],
               ),
             ),
@@ -112,42 +115,42 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     );
   }
 
-  Widget _buildNameField() {
+  Widget _buildNameField(S s) {
     return CustomTextField(
       controller: _nameController,
-      hintText: 'Tên nhóm',
+      hintText: s.groupName,
       textInputAction: TextInputAction.next,
       prefixIcon: Icons.group,
       keyboardType: TextInputType.text,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Tên nhóm không được để trống';
+          return s.groupNameCannotBeEmpty;
         }
         return null;
       },
     );
   }
 
-  Widget _buildDescriptionField() {
+  Widget _buildDescriptionField(S s) {
     return CustomTextField(
       controller: _descriptionController,
-      hintText: 'Mô tả',
+      hintText: s.description,
       textInputAction: TextInputAction.newline,
       prefixIcon: Icons.description,
       keyboardType: TextInputType.multiline,
       maxLines: 5,
       validator: (value) {
         if (value != null && value.trim().length > 100) {
-          return 'Mô tả không được quá 100 ký tự';
+          return s.descriptionCannotExceed100Characters;
         }
         return null;
       },
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(S s) {
     return CustomButton(
-      text: 'Tạo nhóm',
+      text: s.createGroup,
       width: 288.w,
       height: 85.h,
       color: AppColors.primaryColor,

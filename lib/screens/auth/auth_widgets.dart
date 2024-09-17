@@ -4,8 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../config/text_styles.dart';
+import '../../generated/l10n.dart';
 
-Widget buttonLoginGoogle(void Function() ontap) {
+Widget buttonLoginGoogle(void Function() ontap, BuildContext context) {
+  final s = S.of(context);
   return GestureDetector(
     onTap: () {
       HapticFeedback.mediumImpact();
@@ -23,9 +25,9 @@ Widget buttonLoginGoogle(void Function() ontap) {
             child: SvgPicture.asset('assets/icons/google.svg'),
           ),
           SizedBox(width: 15.w),
-          const Text(
-            'Đăng nhập với Google',
-            style: TextStyle(
+          Text(
+            s.loginWithGoogle,
+            style: const TextStyle(
               fontFamily: 'SFProDisplay',
               fontSize: 16,
               fontWeight: FontWeight.w400,
@@ -51,17 +53,18 @@ Widget textButton({
   );
 }
 
-Widget textButtonSignUp(void Function() ontap) {
+Widget textButtonSignUp(
+    void Function() ontap, String noAccountText, String signUpText) {
   return InkWell(
     onTap: () {
       HapticFeedback.mediumImpact();
       ontap();
     },
-    child: const Wrap(
+    child: Wrap(
       children: <Widget>[
         Text(
-          'Bạn chưa có tài khoản? ',
-          style: TextStyle(
+          noAccountText,
+          style: const TextStyle(
             fontFamily: 'SFProDisplay',
             fontSize: 14,
             fontWeight: FontWeight.normal,
@@ -69,8 +72,8 @@ Widget textButtonSignUp(void Function() ontap) {
           ),
         ),
         Text(
-          'Đăng ký',
-          style: TextStyle(
+          signUpText,
+          style: const TextStyle(
             fontFamily: 'SFProDisplay',
             fontSize: 14,
             fontWeight: FontWeight.normal,

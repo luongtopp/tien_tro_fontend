@@ -11,6 +11,7 @@ import '../../../blocs/group_bloc/group_events.dart';
 import '../../../blocs/group_bloc/group_states.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
+import '../../../generated/l10n.dart';
 import '../../../models/user_model.dart';
 import '../../../routes/app_route.dart';
 import '../../../utils/loading_overlay.dart';
@@ -55,6 +56,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
   }
 
   void _handleGroupState(BuildContext context, GroupState state) {
+    final s = S.of(context);
     switch (state) {
       case GroupValidating():
         LoadingOverlay.show(context);
@@ -79,6 +81,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<GroupBloc, GroupState>(
       listener: (context, state) {
         _handleGroupState(context, state);
@@ -88,7 +91,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
         child: Scaffold(
           backgroundColor: AppColors.backgroundColor,
           appBar: CustomAppBar(
-            title: "Tham gia nhóm",
+            title: s.joinGroup,
             leadingIcon: Icons.arrow_back_ios_new_rounded,
             iconColor: AppColors.primaryColor,
             func: () => Navigator.of(context).pop(),
@@ -105,13 +108,13 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                       SizedBox(
                           height: MediaQuery.of(context).size.height * 0.2),
                       Text(
-                        'Nhập mã nhóm',
+                        s.enterGroupCode,
                         style: AppTextStyles.subheading,
                       ),
                       SizedBox(height: 16.h),
-                      _buildPinCodeTextField(),
+                      _buildPinCodeTextField(s),
                       SizedBox(height: 24.h),
-                      _buildJoinButton(),
+                      _buildJoinButton(s),
                     ],
                   ),
                 ),
@@ -123,14 +126,13 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
     );
   }
 
-  Widget _buildPinCodeTextField() {
+  Widget _buildPinCodeTextField(S s) {
     return PinCodeTextField(
       dialogConfig: DialogConfig(
-        dialogTitle: 'Mã nhóm',
-        dialogContent: 'Bạn có muốn dán mã',
-        affirmativeText: 'Dán mã',
-        negativeText: 'Hủy',
-        // platform: PinCodePlatform.other,
+        dialogTitle: s.groupCode,
+        dialogContent: s.doYouWantToPasteTheCode,
+        affirmativeText: s.pasteCode,
+        negativeText: s.cancel,
       ),
       pastedTextStyle: const TextStyle(
         color: AppColors.primaryColor,
@@ -139,9 +141,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Mã nhóm không được để trống';
+          return s.groupCodeCannotBeEmpty;
         }
-
         return null;
       },
       animationType: AnimationType.fade,
@@ -164,9 +165,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
     );
   }
 
-  Widget _buildJoinButton() {
+  Widget _buildJoinButton(S s) {
     return CustomButton(
-      text: 'Tham gia nhóm',
+      text: s.joinGroup,
       width: 288.w,
       height: 85.h,
       color: AppColors.primaryColor,

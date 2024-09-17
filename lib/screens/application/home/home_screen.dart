@@ -10,10 +10,12 @@ import '../../../blocs/group_bloc/group_stream_events.dart';
 import '../../../blocs/group_bloc/group_stream_states.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
+import '../../../generated/l10n.dart';
 import '../../../models/group_model.dart';
 import '../../../models/user_model.dart';
 import '../../../utils/dimensions.dart';
 import '../../../widgets/appbars/custom_appbar.dart';
+import '../expense/expense_list_screen.dart';
 import '../expense/expense_screen.dart';
 import '../group/edit_group_screen.dart';
 import '../group/group_detail_screen.dart';
@@ -120,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return GroupManagementScreen(groupModel: groupModel);
       case 1:
-        return const ExpenseScreen();
+        return ExpenseListScreen(groupModel: groupModel);
       case 2:
         return const NotificationScreen();
       case 3:
@@ -148,13 +150,13 @@ class _HomeScreenState extends State<HomeScreen> {
       unselectedLabelStyle: const TextStyle(color: Colors.grey),
       items: [
         _buildBottomNavigationBarItem(
-            0, Icons.group_rounded, Icons.group_outlined, 'Nhóm'),
+            0, Icons.group_rounded, Icons.group_outlined, S.of(context).group),
         _buildBottomNavigationBarItem(1, Icons.account_balance_wallet_rounded,
-            Icons.account_balance_wallet_outlined, 'Thu chi'),
+            Icons.account_balance_wallet_outlined, S.of(context).expense),
         _buildBottomNavigationBarItem(2, Icons.notifications_rounded,
-            Icons.notifications_outlined, 'Thông báo'),
+            Icons.notifications_outlined, S.of(context).notification),
         _buildBottomNavigationBarItem(
-            3, Icons.info_rounded, Icons.info_outlined, 'Chi tiết'),
+            3, Icons.info_rounded, Icons.info_outlined, S.of(context).detail),
       ],
     );
   }
@@ -183,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
       icon: Icons.add_rounded,
       activeIcon: Icons.close_rounded,
       animatedIconTheme: const IconThemeData(size: 22.0),
-      backgroundColor: const Color.fromARGB(255, 255, 172, 6),
+      backgroundColor: AppColors.primaryColor,
       foregroundColor: Colors.white,
       activeForegroundColor: Colors.white,
       activeBackgroundColor: Colors.red,
@@ -197,18 +199,20 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         _buildSpeedDialChild(
           icon: Icons.add_shopping_cart_rounded,
-          label: 'Thêm chi tiêu',
+          label: S.of(context).addExpense,
           color: Colors.blue,
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ExpenseScreen()),
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ExpenseScreen(groupModel: group, userModel: widget.user)),
             );
           },
         ),
         _buildSpeedDialChild(
           icon: Icons.payment_rounded,
-          label: 'Trả nợ',
+          label: S.of(context).payDebt,
           color: Colors.green,
           onTap: () {/* Add new member */},
         ),
@@ -256,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (widget.user.id == group.ownerId) ...[
               _buildPopupMenuItem(
                 icon: Icons.edit_rounded,
-                title: 'Sửa nhóm',
+                title: S.of(context).editGroup,
                 onTap: () {
                   Navigator.of(context).pop();
                   Navigator.push(
@@ -268,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               _buildPopupMenuItem(
                 icon: Icons.delete,
-                title: 'Xóa nhóm',
+                title: S.of(context).deleteGroup,
                 onTap: () {
                   // Implement delete group functionality
                   Navigator.of(context).pop();
@@ -277,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ] else ...[
               _buildPopupMenuItem(
                 icon: Icons.exit_to_app,
-                title: 'Rời nhóm',
+                title: S.of(context).leaveGroup,
                 onTap: () {
                   // Implement leave group functionality
                   Navigator.of(context).pop();

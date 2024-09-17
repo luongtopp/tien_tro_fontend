@@ -63,6 +63,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '460649195522',
     projectId: 'chia-se-tien-sinh-hoat-t-97a1b',
     storageBucket: 'chia-se-tien-sinh-hoat-t-97a1b.appspot.com',
+    androidClientId: '460649195522-7vlckpf70ghh6atmkgfq3799kagre244.apps.googleusercontent.com',
+    iosClientId: '460649195522-s2mq4apnep6k6rc1q1pc2i1ius3ea4ng.apps.googleusercontent.com',
     iosBundleId: 'com.example.chiaSeTienSinhHoatTro',
   );
+
 }

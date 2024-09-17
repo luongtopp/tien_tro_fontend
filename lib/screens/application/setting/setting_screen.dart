@@ -1,51 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../blocs/auth_bloc/auth_blocs.dart';
 import '../../../blocs/auth_bloc/auth_events.dart';
+import '../../../config/app_color.dart';
+import '../../../config/text_styles.dart';
+import '../../../generated/l10n.dart';
+import '../../../routes/app_route.dart';
 import '../../../blocs/setting_bloc/setting_blocs.dart';
 import '../../../blocs/setting_bloc/setting_events.dart';
 import '../../../blocs/setting_bloc/setting_states.dart';
-import '../../../config/app_color.dart';
-import '../../../config/text_styles.dart';
-import '../../../routes/app_route.dart';
-import '../../../l10n/app_localizations.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingBloc, SettingState>(
-      builder: (context, state) {
-        final l10n = AppLocalizations.of(context);
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: Text(l10n.settings, style: AppTextStyles.titleLarge),
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: AppColors.primaryColor),
-            ),
-          ),
-          body: ListView(
+    final l10n = S.of(context);
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(l10n.settings, style: AppTextStyles.titleLarge),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+              color: AppColors.primaryColor),
+        ),
+      ),
+      body: BlocBuilder<SettingBloc, SettingState>(
+        builder: (context, state) {
+          return ListView(
             padding: EdgeInsets.all(16.w),
             children: [
               _buildSectionTitle(l10n.options),
               _buildSwitchTile(
                 title: l10n.notifications,
                 value: state.notificationsEnabled,
-                onChanged: (value) =>
-                    context.read<SettingBloc>().add(ToggleNotification(value)),
+                onChanged: (value) {
+                  context.read<SettingBloc>().add(ToggleNotification(value));
+                },
               ),
-              _buildLanguageSelector(context, state, l10n),
+              _buildLanguageSelector(context, state.currentLocale),
               SizedBox(height: 24.h),
               _buildSectionTitle(l10n.settings),
               _buildListTile(
@@ -75,9 +76,9 @@ class SettingScreen extends StatelessWidget {
                 _showLogoutDialog(context);
               }),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -103,28 +104,49 @@ class SettingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLanguageSelector(
-      BuildContext context, SettingState state, AppLocalizations l10n) {
-    return ListTile(
-      title: Text(l10n.language, style: AppTextStyles.bodyLarge),
-      trailing: DropdownButton<Locale>(
-        value: state.currentLocale,
-        items: [
-          DropdownMenuItem<Locale>(
-            value: const Locale('vi'),
-            child: Text(l10n.vietnamese),
+  Widget _buildLanguageSelector(BuildContext context, Locale currentLocale) {
+    return BlocBuilder<SettingBloc, SettingState>(
+      builder: (context, state) {
+        final l10n = S.of(context);
+        return ListTile(
+          title: Text(l10n.language, style: AppTextStyles.bodyLarge),
+          trailing: DropdownButton<Locale>(
+            value: state.currentLocale,
+            dropdownColor: Colors.white,
+            items: [
+              DropdownMenuItem<Locale>(
+                value: const Locale('vi'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/images/vietnam_flag.png',
+                        width: 24, height: 24),
+                    SizedBox(width: 8),
+                    Text(l10n.vietnamese),
+                  ],
+                ),
+              ),
+              DropdownMenuItem<Locale>(
+                value: const Locale('en'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/images/uk_flag.png',
+                        width: 24, height: 24),
+                    SizedBox(width: 8),
+                    Text(l10n.english),
+                  ],
+                ),
+              ),
+            ],
+            onChanged: (newLocale) {
+              if (newLocale != null) {
+                context.read<SettingBloc>().add(ChangeLanguage(newLocale));
+              }
+            },
           ),
-          DropdownMenuItem<Locale>(
-            value: const Locale('en'),
-            child: Text(l10n.english),
-          ),
-        ],
-        onChanged: (newLocale) {
-          if (newLocale != null) {
-            context.read<SettingBloc>().add(ChangeLanguage(newLocale));
-          }
-        },
-      ),
+        );
+      },
     );
   }
 
@@ -157,17 +179,17 @@ class SettingScreen extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = S.of(context);
     if (Platform.isIOS) {
       showCupertinoModalPopup(
         context: context,
         builder: (BuildContext context) => CupertinoActionSheet(
           title: Text(
-            l10n.logoutConfirmationTitle,
+            l10n.logout,
             style: AppTextStyles.bodyMedium,
           ),
           message: Text(
-            l10n.logoutConfirmationMessage,
+            l10n.logoutConfirmation,
             style: AppTextStyles.bodyMedium,
           ),
           actions: <CupertinoActionSheetAction>[
@@ -191,7 +213,7 @@ class SettingScreen extends StatelessWidget {
     } else {
       showModalBottomSheet(
         context: context,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         builder: (BuildContext context) {
@@ -201,7 +223,7 @@ class SettingScreen extends StatelessWidget {
               children: <Widget>[
                 ListTile(
                   title: Text(
-                    l10n.logoutConfirmationTitle,
+                    l10n.logout,
                     style: AppTextStyles.bodyMedium
                         .copyWith(color: Colors.black54),
                     textAlign: TextAlign.center,
@@ -209,7 +231,7 @@ class SettingScreen extends StatelessWidget {
                 ),
                 ListTile(
                   title: Text(
-                    l10n.logoutConfirmationMessage,
+                    l10n.logoutConfirmation,
                     style: AppTextStyles.bodyMedium,
                     textAlign: TextAlign.center,
                   ),

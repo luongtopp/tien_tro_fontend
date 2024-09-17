@@ -1,4 +1,3 @@
-import 'package:chia_se_tien_sinh_hoat_tro/config/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../blocs/auth_bloc/auth_blocs.dart';
 import '../../blocs/auth_bloc/auth_events.dart';
 import '../../blocs/auth_bloc/auth_states.dart';
+import '../../config/app_color.dart';
 import '../../config/text_styles.dart';
+import '../../generated/l10n.dart';
 import '../../routes/app_route.dart';
 import '../../utils/loading_overlay.dart';
 import '../../utils/snackbar_utils.dart';
@@ -35,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLoginState(BuildContext context, AuthState state) {
+    final s = S.of(context);
     switch (state) {
       case AuthLoading():
         LoadingOverlay.show(context);
@@ -75,6 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listener: _handleLoginState,
       child: Scaffold(
@@ -89,17 +92,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 89.h),
                   _buildLogo(),
                   SizedBox(height: 51.h),
-                  _buildEmailField(),
+                  _buildEmailField(s),
                   SizedBox(height: 24.h),
-                  _buildPasswordField(),
+                  _buildPasswordField(s),
                   SizedBox(height: 43.h),
-                  _buildForgotPasswordButton(),
+                  _buildForgotPasswordButton(s),
                   SizedBox(height: 46.h),
-                  _buildLoginButton(),
+                  _buildLoginButton(s),
                   SizedBox(height: 21.h),
-                  _buildGoogleLoginButton(),
+                  _buildGoogleLoginButton(s),
                   SizedBox(height: 24.h),
-                  _buildSignUpButton(),
+                  _buildSignUpButton(s),
                   SizedBox(height: 24.h),
                 ],
               ),
@@ -126,55 +129,55 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(S s) {
     return CustomTextField(
       controller: _emailController,
-      hintText: 'Email',
+      hintText: s.email,
       textInputAction: TextInputAction.next,
       prefixIcon: Icons.alternate_email_rounded,
       keyboardType: TextInputType.emailAddress,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Email không được để trống';
+          return s.emailCannotBeEmpty;
         }
         if (!isValidEmail(value)) {
-          return 'Định dạng email không hợp lệ';
+          return s.invalidEmailFormat;
         }
         return null;
       },
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(S s) {
     return CustomTextField(
       controller: _passwordController,
       keyboardType: TextInputType.visiblePassword,
-      hintText: 'Mật khẩu',
+      hintText: s.password,
       prefixIcon: Icons.lock,
       obscureText: true,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Mật khẩu không được để trống';
+          return s.passwordCannotBeEmpty;
         }
         return null;
       },
     );
   }
 
-  Widget _buildForgotPasswordButton() {
+  Widget _buildForgotPasswordButton(S s) {
     return Container(
       alignment: Alignment.centerRight,
       width: 333.w,
       child: textButton(
-        text: 'Quên mật khẩu?',
+        text: s.forgotPassword,
         onTap: () => Navigator.of(context).pushNamed(AppRoutes.FORGOT_PASSWORD),
       ),
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(S s) {
     return CustomButton(
-      text: 'Đăng Nhập',
+      text: s.login,
       width: 288.h,
       height: 85.h,
       color: AppColors.primaryColor,
@@ -184,15 +187,15 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildGoogleLoginButton() {
+  Widget _buildGoogleLoginButton(S s) {
     return buttonLoginGoogle(() {
       context.read<AuthBloc>().add(LoginWithGoogleRequested());
-    });
+    }, context);
   }
 
-  Widget _buildSignUpButton() {
+  Widget _buildSignUpButton(S s) {
     return textButtonSignUp(() {
       Navigator.of(context).pushNamed(AppRoutes.REGISTER);
-    });
+    }, s.dontHaveAnAccount, s.signUp);
   }
 }

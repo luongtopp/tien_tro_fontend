@@ -10,6 +10,7 @@ class SettingBloc extends Bloc<SettingEvent, SettingState> {
     on<LoadSettings>(_onLoadSettings);
     on<ToggleNotification>(_onToggleNotification);
     on<ChangeLanguage>(_onChangeLanguage);
+    add(LoadSettings()); // Add this line
   }
 
   Future<void> _onLoadSettings(
@@ -35,5 +36,6 @@ class SettingBloc extends Bloc<SettingEvent, SettingState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', event.locale.languageCode);
     emit(state.copyWith(currentLocale: event.locale));
+    add(LoadSettings()); // Add this line to reload settings after changing language
   }
 }

@@ -7,8 +7,8 @@ import 'blocs/app_bloc_providers.dart';
 import 'blocs/setting_bloc/setting_blocs.dart';
 import 'blocs/setting_bloc/setting_states.dart';
 import 'config/app_theme.dart';
+import 'generated/l10n.dart';
 import 'global.dart';
-import 'l10n/app_localizations.dart';
 import 'repositories/app_repository_providers.dart';
 import 'routes/app_pages.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -45,17 +45,17 @@ class _MyAppState extends State<MyApp> {
             builder: (context, state) {
               return MaterialApp(
                 locale: state.currentLocale,
+                localeListResolutionCallback: (locales, supportedLocales) {
+                  return state.currentLocale;
+                },
                 title: 'Chia sẻ tiền sinh hoạt trọ',
                 localizationsDelegates: const [
-                  AppLocalizationsDelegate(),
+                  S.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-                supportedLocales: const [
-                  Locale('en', ''),
-                  Locale('vi', ''),
-                ],
+                supportedLocales: S.delegate.supportedLocales,
                 debugShowCheckedModeBanner: false,
                 theme: appTheme(),
                 onGenerateRoute: AppPages.onGenerateRoute,

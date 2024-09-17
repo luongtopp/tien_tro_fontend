@@ -29,8 +29,11 @@ class AuthRepository {
 
   Future<User?> loginWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception('Google không đăng nhập được');
+      }
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
@@ -52,13 +55,16 @@ class AuthRepository {
     } catch (e) {
       if (e is PlatformException) {
         if (e.code == 'sign_in_failed') {
-          return null;
+          throw Exception(
+            'Lỗi khi đăng nhập Google trên iPhone',
+          );
         }
         throw Exception(
           'Lỗi khi đăng nhập Google: $e',
         );
       }
     }
+    return null;
   }
 
   Future<User?> loginWithEmailPassword(

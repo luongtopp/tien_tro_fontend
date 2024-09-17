@@ -65,6 +65,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await _authRepository.loginWithGoogle();
+
       if (user != null) {
         UserModel? userModel = await _userRepository.getUserById(user.uid);
         if (userModel == null) {

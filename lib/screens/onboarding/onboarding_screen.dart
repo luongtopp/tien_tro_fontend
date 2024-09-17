@@ -10,6 +10,7 @@ import '../../blocs/onboarding_bloc/onboarding_blocs.dart';
 import '../../blocs/onboarding_bloc/onboarding_events.dart';
 import '../../blocs/onboarding_bloc/onboarding_states.dart';
 import '../../config/text_styles.dart';
+import '../../generated/l10n.dart';
 import '../../routes/app_route.dart';
 import '../../widgets/buttons/custom_button.dart';
 
@@ -59,22 +60,22 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                           state.currentPage,
                           _buildPaint(PaintOne()),
                           OnboardingConfig.onboardingImages[0],
-                          OnboardingConfig.titleText[0],
-                          OnboardingConfig.subTitleText[0],
+                          OnboardingConfig.getTitleText(context)[0],
+                          OnboardingConfig.getSubTitleText(context)[0],
                         ),
                         _page(
                           state.currentPage,
                           _buildPaint(PaintTow()),
                           OnboardingConfig.onboardingImages[1],
-                          OnboardingConfig.titleText[1],
-                          OnboardingConfig.subTitleText[1],
+                          OnboardingConfig.getTitleText(context)[1],
+                          OnboardingConfig.getSubTitleText(context)[1],
                         ),
                         _page(
                           state.currentPage,
                           _buildPaint(PaintThree()),
                           OnboardingConfig.onboardingImages[2],
-                          OnboardingConfig.titleText[2],
-                          OnboardingConfig.subTitleText[2],
+                          OnboardingConfig.getTitleText(context)[2],
+                          OnboardingConfig.getSubTitleText(context)[2],
                         ),
                       ],
                     ),
@@ -154,7 +155,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                     .pushNamedAndRemoveUntil(AppRoutes.LOGIN, (route) => false);
               }
             },
-            text: index == 2 ? 'Bắt đầu' : 'Tiếp theo',
+            text: index == 2 ? S.of(context).start : S.of(context).next,
             width: 261.w,
             height: 70.h,
             color: Colors.white,

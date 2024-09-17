@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
-import 'package:flutter/services.dart'; // Add this import
+import 'package:flutter/services.dart';
 
 import '../../../blocs/group_bloc/group_blocs.dart';
 import '../../../blocs/group_bloc/group_events.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
+import '../../../generated/l10n.dart';
 import '../../../models/group_model.dart';
 import '../../../models/user_model.dart';
 import '../../../routes/app_route.dart';
@@ -34,8 +35,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 1, 67, 95),
+      backgroundColor: const Color.fromARGB(255, 1, 67, 95),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(left: 15.w),
@@ -43,11 +45,11 @@ class _MenuDrawerState extends State<MenuDrawer> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildDrawerHeader(),
-              _buildGroupTile(),
+              _buildGroupTile(s),
               SizedBox(height: 8.h),
               Expanded(child: _buildGroupList()),
               SizedBox(height: 90.h),
-              _buildSettingsTile(), // Add this line
+              _buildSettingsTile(s),
             ],
           ),
         ),
@@ -71,14 +73,14 @@ class _MenuDrawerState extends State<MenuDrawer> {
     );
   }
 
-  Widget _buildGroupTile() {
+  Widget _buildGroupTile(S s) {
     return Card(
       color: AppColors.primaryColor,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: ListTile(
         leading:
             const Icon(Icons.group_rounded, color: AppColors.iconDrawerColor),
-        title: Text('Nhóm',
+        title: Text(s.group,
             style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
             maxLines: 1),
         trailing:
@@ -107,7 +109,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
         borderRadius: BorderRadius.circular(15.r),
       ),
       child: Container(
-        margin: EdgeInsets.all(2),
+        margin: const EdgeInsets.all(2),
         clipBehavior: Clip.antiAliasWithSaveLayer,
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 1, 59, 84),
@@ -117,14 +119,14 @@ class _MenuDrawerState extends State<MenuDrawer> {
               color: Colors.black.withOpacity(0.3),
               spreadRadius: 1,
               blurRadius: 5,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
             BoxShadow(
                 color:
                     const Color.fromARGB(255, 255, 255, 255).withOpacity(0.9),
                 spreadRadius: -2,
                 blurRadius: 5,
-                offset: Offset(0, 0),
+                offset: const Offset(0, 0),
                 blurStyle: BlurStyle.inner),
           ],
         ),
@@ -165,18 +167,18 @@ class _MenuDrawerState extends State<MenuDrawer> {
     ZoomDrawer.of(context)!.toggle();
   }
 
-  Widget _buildSettingsTile() {
+  Widget _buildSettingsTile(S s) {
     return ListTile(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.r),
       ),
       leading: const Icon(Icons.settings, color: AppColors.iconDrawerColor),
-      title: Text('Cài đặt',
+      title: Text(s.settings,
           style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
       onTap: () {
         HapticFeedback.mediumImpact();
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => SettingScreen()));
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const SettingScreen()));
       },
     );
   }

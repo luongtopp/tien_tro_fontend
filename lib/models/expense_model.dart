@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'member_model.dart';
 
 class ExpenseModel {
-  final String id;
+  final String groupId; // Changed from id to groupId
   final String title;
   final String note;
   final double amount;
@@ -11,10 +11,10 @@ class ExpenseModel {
   final ExpenseMember byPeople;
   final List<ExpenseMember> forPeople;
   final String transactionType;
-  final List<String> photos;
+  final List<String>? photos; // Changed to nullable
 
   ExpenseModel({
-    required this.id,
+    required this.groupId, // Changed from id to groupId
     required this.title,
     required this.note,
     required this.amount,
@@ -23,13 +23,13 @@ class ExpenseModel {
     required this.byPeople,
     required this.forPeople,
     required this.transactionType,
-    required this.photos,
+    this.photos, // Changed to optional
   });
 
   factory ExpenseModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return ExpenseModel(
-      id: doc.id,
+      groupId: doc.id, // Changed from id to groupId
       title: data['title'] ?? '',
       note: data['note'] ?? '',
       amount: (data['amount'] as num).toDouble(),
@@ -41,13 +41,13 @@ class ExpenseModel {
           .map((e) => ExpenseMember.fromMap(e as Map<String, dynamic>))
           .toList(),
       transactionType: data['transactionType'] ?? '',
-      photos: List<String>.from(data['photos'] ?? []),
+      photos: (data['photos'] as List<dynamic>?)?.cast<String>(), // Changed
     );
   }
 
   factory ExpenseModel.fromMap(Map<String, dynamic> map) {
     return ExpenseModel(
-      id: map['id'] ?? '',
+      groupId: map['groupId'] ?? '', // Changed from id to groupId
       title: map['title'] ?? '',
       note: map['note'] ?? '',
       amount: (map['amount'] as num).toDouble(),
@@ -58,12 +58,13 @@ class ExpenseModel {
           .map((e) => ExpenseMember.fromMap(e as Map<String, dynamic>))
           .toList(),
       transactionType: map['transactionType'] ?? '',
-      photos: List<String>.from(map['photos'] ?? []),
+      photos: (map['photos'] as List<dynamic>?)?.cast<String>(), // Changed
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'groupId': groupId, // Added groupId to the map
       'title': title,
       'note': note,
       'amount': amount,

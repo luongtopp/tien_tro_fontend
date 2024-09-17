@@ -8,6 +8,7 @@ import '../../../blocs/group_bloc/group_events.dart';
 import '../../../blocs/group_bloc/group_states.dart';
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
+import '../../../generated/l10n.dart';
 import '../../../models/member_model.dart';
 import '../../../routes/app_route.dart';
 import '../../../utils/loading_overlay.dart';
@@ -97,6 +98,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<GroupBloc, GroupState>(
       listener: (context, state) {
         _handleGroupState(context, state);
@@ -104,7 +106,7 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: CustomAppBar(
-          title: "Sửa nhóm",
+          title: s.editGroup,
           leadingIcon: Icons.arrow_back_ios_new_rounded,
           iconColor: AppColors.primaryColor,
           func: () => Navigator.of(context).pop(),
@@ -135,15 +137,16 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   }
 
   Widget _buildNameField() {
+    final s = S.of(context);
     return CustomTextField(
       controller: _nameController,
-      hintText: 'Tên nhóm',
+      hintText: s.groupName,
       textInputAction: TextInputAction.next,
       prefixIcon: Icons.group,
       keyboardType: TextInputType.text,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Tên nhóm không được để trống';
+          return s.groupNameCannotBeEmpty;
         }
         return null;
       },
@@ -151,16 +154,17 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   }
 
   Widget _buildDescriptionField() {
+    final s = S.of(context);
     return CustomTextField(
       controller: _descriptionController,
-      hintText: 'Mô tả',
+      hintText: s.description,
       textInputAction: TextInputAction.newline,
       prefixIcon: Icons.description,
       keyboardType: TextInputType.multiline,
       maxLines: 5,
       validator: (value) {
         if (value != null && value.trim().length > 100) {
-          return 'Mô tả không được quá 100 ký t';
+          return s.descriptionCannotExceed100Characters;
         }
         return null;
       },
@@ -168,11 +172,12 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   }
 
   Widget _buildMembersList() {
+    final s = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Chọn thành viên để xóa',
+          s.selectMemberToDelete,
           style: AppTextStyles.bodyRegular,
         ),
         SizedBox(height: 8.h),
@@ -246,8 +251,9 @@ class _EditGroupScreenState extends State<EditGroupScreen> {
   }
 
   Widget _buildSubmitButton() {
+    final s = S.of(context);
     return CustomButton(
-      text: 'Cập nhật nhóm',
+      text: s.updateGroup,
       width: 288.w,
       height: 85.h,
       color: AppColors.primaryColor,

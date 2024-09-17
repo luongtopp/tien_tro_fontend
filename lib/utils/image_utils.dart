@@ -8,18 +8,20 @@ import 'package:image_picker/image_picker.dart';
 
 import '../config/app_color.dart';
 import '../config/text_styles.dart';
+import '../generated/l10n.dart';
 import '../widgets/buttons/button_modal_bottom_sheet.dart';
 import 'modal_bottom_sheet_utils.dart';
 
 Future<void> cropImage({
   required File imageFile,
   required Function(File) onImageCropped,
+  required BuildContext context,
 }) async {
   final croppedFile = await ImageCropper().cropImage(
     sourcePath: imageFile.path,
     uiSettings: [
       AndroidUiSettings(
-        toolbarTitle: 'Chỉnh sửa',
+        toolbarTitle: S.of(context).edit,
         toolbarColor: AppColors.primaryColor,
         statusBarColor: AppColors.primaryColor,
         activeControlsWidgetColor: AppColors.primaryColor,
@@ -56,6 +58,7 @@ Future<void> pickImage({
 
   if (pickedFile != null) {
     await cropImage(
+      context: context,
       imageFile: File(pickedFile.path),
       onImageCropped: onImagePicked,
     );
@@ -66,14 +69,14 @@ List<Widget> _buildImagePickerButtons(BuildContext context) {
   return [
     _buildButton(
       context: context,
-      text: 'Máy ảnh',
+      text: S.of(context).camera,
       icon: Icons.camera_alt_rounded,
       option: 1,
     ),
     const SizedBox(height: 15),
     _buildButton(
       context: context,
-      text: 'Thư viện',
+      text: S.of(context).library,
       icon: Icons.photo_library_rounded,
       option: 2,
     ),

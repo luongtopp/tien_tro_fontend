@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../config/app_color.dart';
 import '../../../config/text_styles.dart';
+import '../../../generated/l10n.dart';
 import '../../../models/group_model.dart';
 import '../../../utils/utils.dart';
 import '../member/member_detail_screen.dart';
@@ -118,13 +119,14 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Text(
-        "Danh sách thành viên",
+        S.of(context).memberList,
         style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
       ),
     );
   }
 
   Widget _buildMemberList() {
+    final s = S.of(context);
     return ShaderMask(
       shaderCallback: (Rect rect) {
         return const LinearGradient(
@@ -167,7 +169,7 @@ class _GroupManagementScreenState extends State<GroupManagementScreen> {
               title: Text(member.name, style: AppTextStyles.bodyRegular),
               subtitle: formattedAmount(member.balance),
               trailing: Text(
-                member.role == 'owner' ? 'Trưởng nhóm' : 'Thành viên',
+                member.role == 'owner' ? s.groupLeader : s.member,
                 style: AppTextStyles.bodyRegular.copyWith(
                   color: member.role == 'owner'
                       ? AppColors.primaryColor

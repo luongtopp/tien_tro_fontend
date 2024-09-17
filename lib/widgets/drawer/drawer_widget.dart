@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../config/text_styles.dart';
+import '../../generated/l10n.dart';
 import '../../utils/modal_bottom_sheet_utils.dart';
 import '../buttons/button_modal_bottom_sheet.dart';
 
@@ -47,7 +48,7 @@ void showBottomSheetCustom(BuildContext context, {Function(int)? onButtonTap}) {
     context: context,
     buttons: <Widget>[
       ButtonModalBottomSheet(
-        text: 'Tạo nhóm',
+        text: S.of(context).createGroup,
         width: double.infinity,
         height: 70,
         color: AppColors.primaryColor,
@@ -59,7 +60,7 @@ void showBottomSheetCustom(BuildContext context, {Function(int)? onButtonTap}) {
       ),
       const SizedBox(height: 15),
       ButtonModalBottomSheet(
-        text: 'Tham gia nhóm',
+        text: S.of(context).joinGroup,
         width: double.infinity,
         height: 70,
         color: AppColors.buttonOutLineColor,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../models/group_model.dart';
+import '../../../generated/l10n.dart'; // Thêm import này
 
 class GroupDetailScreen extends StatefulWidget {
   final GroupModel groupModel;
@@ -14,6 +15,7 @@ class GroupDetailScreen extends StatefulWidget {
 class _GroupDetailScreenState extends State<GroupDetailScreen> {
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context); // Thêm dòng này
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Builder(
@@ -32,21 +34,21 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildInfoRow(
-                        'Mã nhóm', widget.groupModel.code, true, context),
+                        s.groupCode, widget.groupModel.code, true, context),
                     _buildInfoRow(
-                        'Ngày tạo',
+                        s.createdDate,
                         widget.groupModel.createdDate
                             .toLocal()
                             .toString()
                             .split(' ')[0]),
                     _buildInfoRow(
-                        'Trưởng nhóm', widget.groupModel.creator.toString()),
-                    _buildInfoRow('Số thành viên',
+                        s.groupLeader, widget.groupModel.creator.toString()),
+                    _buildInfoRow(s.memberCount,
                         widget.groupModel.members.length.toString()),
                     _buildInfoRow(
-                        'Mô tả',
-                        widget.groupModel.description == ''
-                            ? 'Chưa có mô tả'
+                        s.description,
+                        widget.groupModel.description.isEmpty
+                            ? s.noDescription
                             : widget.groupModel.description),
                   ],
                 ),
@@ -60,6 +62,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
 
   Widget _buildInfoRow(String label, String value,
       [bool copyable = false, BuildContext? context]) {
+    final s = S.of(context ?? this.context); // Thêm dòng này
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -81,6 +84,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                     onPressed: () {
                       HapticFeedback.mediumImpact();
                       Clipboard.setData(ClipboardData(text: value));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(s.copiedToClipboard)),
+                      );
                     },
                   ),
               ],

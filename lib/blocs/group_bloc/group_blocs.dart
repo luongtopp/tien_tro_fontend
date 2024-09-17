@@ -26,7 +26,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     on<DeleteGroup>(_onDeleteGroup);
     on<FindGroupById>(_onFindGroupById);
     on<FindGroupByCode>(_onFindGroupByCode);
-    // on<ExpenseAdded>(_onExpenseAdded);
+    on<ExpenseAdded>(_onExpenseAdded);
   }
 
   Future<void> _onAddGroup(AddGroup event, Emitter<GroupState> emit) async {
@@ -180,15 +180,59 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     }
   }
 
-  // Future<void> _onExpenseAdded(
-  //     ExpenseAdded event, Emitter<GroupState> emit) async {
-  //   emit(GroupValidating());
-  //   try {
-  //     await _groupRepository.addExpenseToGroup(event.expense.id, event.expense);
-  //   } on FirebaseException catch (e) {
-  //     emit(GroupError(e.message ?? 'Lỗi khi thêm chi phí vào nhóm'));
-  //   } catch (e) {
-  //     emit(GroupError('Thêm chi phí vào nhóm thất bại: ${e.toString()}'));
-  //   }
-  // }
+  Future<void> _onExpenseAdded(
+      ExpenseAdded event, Emitter<GroupState> emit) async {
+    emit(GroupValidating());
+    try {
+      await _groupRepository.addExpenseToGroup(event.expense);
+      // Cập nhật group với member totalExpenseAmount và balance
+      final updatedGroup =
+          await _groupRepository.getGroupById(event.expense.groupId);
+
+      // Cập nhật totalExpenseAmount và balance cho các thành viên
+      for (var member in updatedGroup.members) {
+        double totalExpense = 0;
+        double balance = 0;
+
+        for (var expense in updatedGroup.expenses) {
+          if (expense.byPeople.id == member.id) {
+            totalExpense += expense.amount;
+          }
+
+          for (var forPerson in expense.forPeople) {
+            if (forPerson.id == member.id) {
+              balance -= forPerson.balance;
+            }
+          }
+        }
+
+        // Create a new MemberModel with updated values
+        var updatedMember = MemberModel(
+          id: member.id,
+          name: member.name,
+          avatarUrl: member.avatarUrl,
+          description: member.description,
+          totalExpenseAmount: totalExpense,
+          balance: balance,
+          isIdentified: member.isIdentified,
+          role: member.role,
+          bankAccountInfo: member.bankAccountInfo,
+          lastAccessDate: member.lastAccessDate,
+        );
+
+        // Replace the old member with the updated one in the group's members list
+        updatedGroup.members[updatedGroup.members.indexOf(member)] =
+            updatedMember;
+      }
+
+      await _groupRepository.updateGroup(updatedGroup);
+
+      emit(GroupActionResult(
+          message: "Thêm chi phí vào nhóm thành công", group: updatedGroup));
+    } on FirebaseException catch (e) {
+      emit(GroupError(e.message ?? 'Lỗi khi thêm chi phí vào nhóm'));
+    } catch (e) {
+      emit(GroupError('Thêm chi phí vào nhóm thất bại: ${e.toString()}'));
+    }
+  }
 }

@@ -346,45 +346,16 @@ class GroupRepository {
     }
   }
 
-  // Future<void> addExpenseToGroup(String groupId, ExpenseModel expense) async {
-  //   try {
-  //     DocumentReference groupRef = _firestore.collection('groups').doc(groupId);
-
-  //     await _firestore.runTransaction((transaction) async {
-  //       DocumentSnapshot groupSnapshot = await transaction.get(groupRef);
-  //       if (!groupSnapshot.exists) {
-  //         throw Exception('Nhóm không tồn tại');
-  //       }
-
-  //       Map<String, dynamic> groupData =
-  //           groupSnapshot.data() as Map<String, dynamic>;
-  //       List<dynamic> members = groupData['members'];
-
-  //       // Cập nhật totalExpenseAmount và balance cho các thành viên
-  //       for (var member in members) {
-  //         if (expense.byPeople.any((e) => e.id == member['id'])) {
-  //           member['totalExpenseAmount'] =
-  //               (member['totalExpenseAmount'] ?? 0.0) + expense.amount;
-  //           member['balance'] = (member['balance'] ?? 0.0) + expense.amount;
-  //         } else {
-  //           double shareAmount = expense.amount / members.length;
-  //           member['balance'] = (member['balance'] ?? 0.0) - shareAmount;
-  //         }
-  //       }
-
-  //       transaction.update(groupRef, {
-  //         'expenses': FieldValue.arrayUnion([expense.toMap()]),
-  //         'members': members,
-  //       });
-  //     });
-  //   } on FirebaseException catch (e) {
-  //     throw handleException(
-  //       e: e,
-  //       defaultMessage: 'Lỗi thêm chi phí vào nhóm',
-  //       plugin: 'group',
-  //     );
-  //   } catch (e) {
-  //     throw Exception('Lỗi thêm chi phí vào nhóm: $e');
-  //   }
-  // }
+  Future<void> addExpenseToGroup(ExpenseModel expense) async {
+    try {
+      await _firestore.collection('groups').doc(expense.groupId).update({
+        'expenses': FieldValue.arrayUnion([expense.toMap()]),
+      });
+    } on FirebaseException catch (e) {
+      throw handleException(
+          e: e, defaultMessage: 'Lỗi thêm chi phí vào nhóm', plugin: 'group');
+    } catch (e) {
+      throw Exception('Lỗi thêm chi phí vào nhóm: $e');
+    }
+  }
 }

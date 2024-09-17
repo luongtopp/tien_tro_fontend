@@ -7,6 +7,7 @@ import '../../blocs/auth_bloc/auth_events.dart';
 import '../../blocs/auth_bloc/auth_states.dart';
 import '../../config/app_color.dart';
 import '../../config/text_styles.dart';
+import '../../generated/l10n.dart';
 import '../../utils/loading_overlay.dart';
 import '../../utils/snackbar_utils.dart';
 import '../../utils/validators.dart';
@@ -32,12 +33,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _handleForgotPasswordState(BuildContext context, AuthState state) {
+    final s = S.of(context);
     switch (state) {
       case AuthLoading():
         LoadingOverlay.show(context);
         break;
       case AuthSuccess():
-        showCustomSnackBar(context, state.message, type: SnackBarType.success);
+        LoadingOverlay.hide();
+        showCustomSnackBar(context, s.resetPasswordEmailSent,
+            type: SnackBarType.success);
         Navigator.pop(context);
         break;
       case AuthError():
@@ -59,12 +63,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listener: _handleForgotPasswordState,
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: CustomAppBar(
-          title: 'Quên mật khẩu',
+          title: s.forgotPassword,
           leadingIcon: Icons.arrow_back_ios_new_rounded,
           iconColor: AppColors.primaryColor,
           func: () {
@@ -80,9 +85,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: Column(
                   children: [
                     SizedBox(height: 89.h),
-                    _buildEmailField(),
+                    _buildEmailField(s),
                     SizedBox(height: 24.h),
-                    _buildSubmitButton(),
+                    _buildSubmitButton(s),
                     SizedBox(height: 24.h),
                   ],
                 ),
@@ -94,31 +99,31 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(S s) {
     return CustomTextField(
       controller: _emailController,
-      hintText: 'Email',
+      hintText: s.email,
       keyboardType: TextInputType.emailAddress,
       prefixIcon: Icons.alternate_email_rounded,
       textInputAction: TextInputAction.done,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Email không được để trống';
+          return s.emailCannotBeEmpty;
         }
         if (!isValidEmail(value)) {
-          return 'Định dạng email không hợp lệ';
+          return s.invalidEmailFormat;
         }
         return null;
       },
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(S s) {
     return CustomButton(
-      text: 'Xác nhận',
+      text: s.confirm,
       width: 288.h,
       height: 85.h,
-      color: const Color(0xFF00618A),
+      color: AppColors.primaryColor,
       textStyle: AppTextStyles.filledButton,
       borderRadius: 67.r,
       onTap: _submitForgotPassword,
