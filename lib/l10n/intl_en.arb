@@ -121,5 +121,11 @@
   "totalExpense": "Total Expense",
   "amountTooLowError": "Amount must be greater than 1000",
   "expenseNameRequiredError": "Expense name is required",
-  "error": "Error"
+  "error": "Error",
+  "expenseForRequiredError": "Expense for is required",
+  "payment": "Payment",
+  "payer": "Payer",
+  "receiver": "Receiver",
+  "selectReceiver": "Select Receiver",
+  "payerReceiverSameError": "Payer and receiver cannot be the same"
 }

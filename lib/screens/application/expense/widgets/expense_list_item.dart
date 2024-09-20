@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../config/app_color.dart';
 import '../../../../config/text_styles.dart';
 import '../../../../models/expense_model.dart';
 import '../../../../utils/utils.dart';

@@ -121,5 +121,11 @@
   "totalExpense": "Tổng chi tiêu",
   "amountTooLowError": "Số tiền phải lớn hơn 1000",
   "expenseNameRequiredError": "Tên chi tiêu không được để trống",
-  "error": "Lỗi"
+  "error": "Lỗi",
+  "expenseForRequiredError": "Bạn phải chọn ít nhất một người để chi tiêu",
+  "payment": "Thanh toán",
+  "receiver": "Người nhận",
+  "selectReceiver": "Chọn người nhận",
+  "payer": "Người trả",
+  "payerReceiverSameError": "Người trả và người nhận không thể giống nhau"
 }

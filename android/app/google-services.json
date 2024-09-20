@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:460649195522:android:59dab078bf5c2b70a91f1b",
+        "mobilesdk_app_id": "1:460649195522:android:9d2b256f98cad1bda91f1b",
         "android_client_info": {
-          "package_name": "com.example.chia_se_tien_sinh_hoat_tro"
+          "package_name": "com.example.chiaSeTienSinhHoatTro"
         }
       },
       "oauth_client": [
         {
-          "client_id": "460649195522-7vlckpf70ghh6atmkgfq3799kagre244.apps.googleusercontent.com",
+          "client_id": "460649195522-ckjp05iamfqg62dhni94uel255o5ab8r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.chia_se_tien_sinh_hoat_tro",
+            "package_name": "com.example.chiaSeTienSinhHoatTro",
             "certificate_hash": "7d194a72cc4a451543cddc2a14fe597adc92faad"
           }
         },

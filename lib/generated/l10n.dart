@@ -1199,6 +1199,66 @@ class S {
       args: [],
     );
   }
+
+  /// `Expense for is required`
+  String get expenseForRequiredError {
+    return Intl.message(
+      'Expense for is required',
+      name: 'expenseForRequiredError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payment`
+  String get payment {
+    return Intl.message(
+      'Payment',
+      name: 'payment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payer`
+  String get payer {
+    return Intl.message(
+      'Payer',
+      name: 'payer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Receiver`
+  String get receiver {
+    return Intl.message(
+      'Receiver',
+      name: 'receiver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select Receiver`
+  String get selectReceiver {
+    return Intl.message(
+      'Select Receiver',
+      name: 'selectReceiver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payer and receiver cannot be the same`
+  String get payerReceiverSameError {
+    return Intl.message(
+      'Payer and receiver cannot be the same',
+      name: 'payerReceiverSameError',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -29,8 +29,10 @@ class AuthRepository {
 
   Future<User?> loginWithGoogle() async {
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      final googleSignIn = GoogleSignIn.standard();
+
+      final googleUser = await googleSignIn.signIn();
+      // final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
         throw Exception('Google không đăng nhập được');
       }
@@ -54,6 +56,9 @@ class AuthRepository {
       throw handleAuthException(e, 'Lỗi đăng nhập Google');
     } catch (e) {
       if (e is PlatformException) {
+        // print('PlatformException code: ${e.code}');
+        // print('PlatformException message: ${e.message}');
+        // print('PlatformException details: ${e.details}');
         if (e.code == 'sign_in_failed') {
           throw Exception(
             'Lỗi khi đăng nhập Google trên iPhone',

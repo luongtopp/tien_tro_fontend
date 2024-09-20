@@ -1,4 +1,4 @@
-package com.example.chia_se_tien_sinh_hoat_tro
+package com.example.chiaSeTienSinhHoatTro
 
 import io.flutter.embedding.android.FlutterActivity
 

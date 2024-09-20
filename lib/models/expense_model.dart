@@ -8,6 +8,7 @@ class ExpenseModel {
   final double amount;
   final DateTime createdDate;
   final DateTime date;
+  final bool isPaid;
   final ExpenseMember byPeople;
   final List<ExpenseMember> forPeople;
   final String transactionType;
@@ -24,6 +25,7 @@ class ExpenseModel {
     required this.forPeople,
     required this.transactionType,
     this.photos, // Changed to optional
+    required this.isPaid,
   });
 
   factory ExpenseModel.fromFirestore(DocumentSnapshot doc) {
@@ -42,6 +44,7 @@ class ExpenseModel {
           .toList(),
       transactionType: data['transactionType'] ?? '',
       photos: (data['photos'] as List<dynamic>?)?.cast<String>(), // Changed
+      isPaid: data['isPaid'] ?? false,
     );
   }
 
@@ -59,6 +62,7 @@ class ExpenseModel {
           .toList(),
       transactionType: map['transactionType'] ?? '',
       photos: (map['photos'] as List<dynamic>?)?.cast<String>(), // Changed
+      isPaid: map['isPaid'] ?? false,
     );
   }
 
@@ -75,6 +79,7 @@ class ExpenseModel {
       'forPeople': forPeople.map((e) => e.toMap()).toList(),
       'transactionType': transactionType,
       'photos': photos,
+      'isPaid': isPaid,
     };
   }
 }

@@ -18,7 +18,11 @@ class ExpenseListScreen extends StatelessWidget {
 
   Widget _buildExpenseList(BuildContext context, List<ExpenseModel>? expenses) {
     if (expenses == null || expenses.isEmpty) {
-      return const Center(child: Text('No expenses found'));
+      return Center(
+          child: Text(
+        'Chưa có chi tiêu nào',
+        style: AppTextStyles.bodyBold.copyWith(color: Colors.white),
+      ));
     }
 
     // Sắp xếp chi tiêu theo ngày, mới nhất lên đầu

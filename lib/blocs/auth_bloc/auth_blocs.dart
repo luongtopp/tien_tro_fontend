@@ -140,6 +140,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
+
     try {
       await _authRepository.logout();
       emit(AuthUnauthenticated());

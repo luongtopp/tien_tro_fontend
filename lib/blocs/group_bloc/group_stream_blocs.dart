@@ -30,6 +30,8 @@ class GroupStreamBloc extends StreamBloc<GroupStreamEvent, GroupStreamState> {
       } catch (e) {
         yield GroupStreamError('${GroupStreamMessage.setupError.message}: $e');
       }
+    } else if (event is ResetGroupStream) {
+      yield GroupStreamInitial();
     }
   }
 }

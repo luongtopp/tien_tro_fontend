@@ -93,6 +93,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Error occurred: \$1"),
         "expense": MessageLookupByLibrary.simpleMessage("Expense"),
         "expenseFor": MessageLookupByLibrary.simpleMessage("Expense For"),
+        "expenseForRequiredError":
+            MessageLookupByLibrary.simpleMessage("Expense for is required"),
         "expenseName": MessageLookupByLibrary.simpleMessage("Expense Name"),
         "expenseNameRequiredError":
             MessageLookupByLibrary.simpleMessage("Expense name is required"),
@@ -164,8 +166,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Passwords do not match"),
         "pasteCode": MessageLookupByLibrary.simpleMessage("Paste Code"),
         "payDebt": MessageLookupByLibrary.simpleMessage("Pay Debt"),
+        "payer": MessageLookupByLibrary.simpleMessage("Payer"),
+        "payerReceiverSameError": MessageLookupByLibrary.simpleMessage(
+            "Payer and receiver cannot be the same"),
+        "payment": MessageLookupByLibrary.simpleMessage("Payment"),
         "people": MessageLookupByLibrary.simpleMessage("people"),
         "privacyPolicy": MessageLookupByLibrary.simpleMessage("Privacy Policy"),
+        "receiver": MessageLookupByLibrary.simpleMessage("Receiver"),
         "register": MessageLookupByLibrary.simpleMessage("Register"),
         "resetPassword": MessageLookupByLibrary.simpleMessage("Reset Password"),
         "resetPasswordEmailSent":
@@ -175,6 +182,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "selectMemberToDelete":
             MessageLookupByLibrary.simpleMessage("Select Member to Delete"),
         "selectMembers": MessageLookupByLibrary.simpleMessage("Select Members"),
+        "selectReceiver":
+            MessageLookupByLibrary.simpleMessage("Select Receiver"),
         "settings": MessageLookupByLibrary.simpleMessage("Settings"),
         "signUp": MessageLookupByLibrary.simpleMessage("Sign Up"),
         "start": MessageLookupByLibrary.simpleMessage("Start"),

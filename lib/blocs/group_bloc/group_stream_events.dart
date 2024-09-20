@@ -10,3 +10,9 @@ class StreamGroup extends GroupStreamEvent {
   @override
   List<Object> get props => [userId];
 }
+
+class ResetGroupStream extends GroupStreamEvent {
+  const ResetGroupStream();
+  @override
+  List<Object> get props => [];
+}

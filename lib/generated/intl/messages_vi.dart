@@ -94,6 +94,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Đã xảy ra lỗi: \$1"),
         "expense": MessageLookupByLibrary.simpleMessage("Chi tiêu"),
         "expenseFor": MessageLookupByLibrary.simpleMessage("Chi tiền cho"),
+        "expenseForRequiredError": MessageLookupByLibrary.simpleMessage(
+            "Bạn phải chọn ít nhất một người để chi tiêu"),
         "expenseName": MessageLookupByLibrary.simpleMessage("Tên chi tiêu"),
         "expenseNameRequiredError": MessageLookupByLibrary.simpleMessage(
             "Tên chi tiêu không được để trống"),
@@ -167,9 +169,14 @@ class MessageLookup extends MessageLookupByLibrary {
             "Mật khẩu và mật khẩu xác nhận không khớp"),
         "pasteCode": MessageLookupByLibrary.simpleMessage("Dán mã"),
         "payDebt": MessageLookupByLibrary.simpleMessage("Trả nợ"),
+        "payer": MessageLookupByLibrary.simpleMessage("Người trả"),
+        "payerReceiverSameError": MessageLookupByLibrary.simpleMessage(
+            "Người trả và người nhận không thể giống nhau"),
+        "payment": MessageLookupByLibrary.simpleMessage("Thanh toán"),
         "people": MessageLookupByLibrary.simpleMessage("người"),
         "privacyPolicy":
             MessageLookupByLibrary.simpleMessage("Chính sách bảo mật"),
+        "receiver": MessageLookupByLibrary.simpleMessage("Người nhận"),
         "register": MessageLookupByLibrary.simpleMessage("Đăng ký"),
         "resetPassword":
             MessageLookupByLibrary.simpleMessage("Đặt lại mật khẩu"),
@@ -181,6 +188,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chọn thành viên để xóa"),
         "selectMembers":
             MessageLookupByLibrary.simpleMessage("Chọn thành viên"),
+        "selectReceiver":
+            MessageLookupByLibrary.simpleMessage("Chọn người nhận"),
         "settings": MessageLookupByLibrary.simpleMessage("Cài đặt"),
         "signUp": MessageLookupByLibrary.simpleMessage("Đăng ký"),
         "start": MessageLookupByLibrary.simpleMessage("Bắt đầu"),

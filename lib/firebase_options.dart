@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB_o_gXQXe1FgP2UKxtX1lakLLkgQy_kG4',
-    appId: '1:460649195522:android:59dab078bf5c2b70a91f1b',
+    appId: '1:460649195522:android:9d2b256f98cad1bda91f1b',
     messagingSenderId: '460649195522',
     projectId: 'chia-se-tien-sinh-hoat-t-97a1b',
     storageBucket: 'chia-se-tien-sinh-hoat-t-97a1b.appspot.com',

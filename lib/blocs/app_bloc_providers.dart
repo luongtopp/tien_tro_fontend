@@ -36,11 +36,6 @@ MultiBlocProvider appBlocProviders(BuildContext context, Widget child) {
           groupRepository: RepositoryProvider.of<GroupRepository>(context),
         ),
       ),
-      BlocProvider<GroupStreamBloc>(
-        create: (context) => GroupStreamBloc(
-          groupRepository: RepositoryProvider.of<GroupRepository>(context),
-        ),
-      ),
       BlocProvider<SettingBloc>(
         create: (context) => SettingBloc(),
       ),

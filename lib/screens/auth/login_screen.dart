@@ -36,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLoginState(BuildContext context, AuthState state) {
-    final s = S.of(context);
     switch (state) {
       case AuthLoading():
         LoadingOverlay.show(context);
@@ -82,29 +81,31 @@ class _LoginScreenState extends State<LoginScreen> {
       listener: _handleLoginState,
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 48.w),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(height: 89.h),
-                  _buildLogo(),
-                  SizedBox(height: 51.h),
-                  _buildEmailField(s),
-                  SizedBox(height: 24.h),
-                  _buildPasswordField(s),
-                  SizedBox(height: 43.h),
-                  _buildForgotPasswordButton(s),
-                  SizedBox(height: 46.h),
-                  _buildLoginButton(s),
-                  SizedBox(height: 21.h),
-                  _buildGoogleLoginButton(s),
-                  SizedBox(height: 24.h),
-                  _buildSignUpButton(s),
-                  SizedBox(height: 24.h),
-                ],
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 48.w),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    SizedBox(height: 89.h),
+                    _buildLogo(),
+                    SizedBox(height: 51.h),
+                    _buildEmailField(s),
+                    SizedBox(height: 24.h),
+                    _buildPasswordField(s),
+                    SizedBox(height: 43.h),
+                    _buildForgotPasswordButton(s),
+                    SizedBox(height: 46.h),
+                    _buildLoginButton(s),
+                    SizedBox(height: 21.h),
+                    _buildGoogleLoginButton(s),
+                    SizedBox(height: 24.h),
+                    _buildSignUpButton(s),
+                    SizedBox(height: 24.h),
+                  ],
+                ),
               ),
             ),
           ),

@@ -46,7 +46,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _handleRegisterState(BuildContext context, AuthState state) {
-    final s = S.of(context);
     switch (state) {
       case AuthLoading():
         LoadingOverlay.show(context);
@@ -55,10 +54,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         LoadingOverlay.hide();
         showCustomSnackBar(context, state.message, type: SnackBarType.success);
         Navigator.pop(context);
-        break;
-      case AuthError():
-        LoadingOverlay.hide();
-        showCustomSnackBar(context, state.message, type: SnackBarType.error);
         break;
       default:
         LoadingOverlay.hide();

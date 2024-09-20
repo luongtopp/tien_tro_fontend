@@ -1,16 +1,14 @@
 import 'dart:math';
 
-import 'package:chia_se_tien_sinh_hoat_tro/blocs/group_bloc/group_blocs.dart';
-import 'package:chia_se_tien_sinh_hoat_tro/blocs/group_bloc/group_events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
-import '../../../blocs/expense_bloc/expense_events.dart';
+import '../../../blocs/group_bloc/group_blocs.dart';
+import '../../../blocs/group_bloc/group_events.dart';
 import '../../../config/app_color.dart';
-import '../../../config/text_styles.dart';
 import '../../../generated/l10n.dart';
 import '../../../models/expense_model.dart';
 import '../../../models/group_model.dart';
@@ -18,6 +16,10 @@ import '../../../models/member_model.dart';
 import '../../../models/user_model.dart';
 import '../../../utils/keyboard_calculator.dart';
 import '../../../utils/snackbar_utils.dart';
+import 'widgets/amount_section.dart';
+import 'widgets/custom_appbar.dart';
+import 'widgets/expense_for_section.dart';
+import 'widgets/note_section.dart';
 
 class ExpenseScreen extends StatefulWidget {
   final UserModel userModel;
@@ -35,12 +37,19 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   final TextEditingController _noteController = TextEditingController();
   final NumberFormat _formatter = NumberFormat('#,###', 'vi_VN');
   final ScrollController _noteScrollController = ScrollController();
+  final ScrollController _expenseForScrollController = ScrollController();
   List<MemberModel> members = [];
   List<MemberModel> _selectedMembers = [];
   double _totalAmount = 0;
   Map<String, double> _memberAmounts = {};
   List<ExpenseMember> _byPeople = [];
   List<ExpenseMember> _forPeople = [];
+
+  // Thêm biến mới để theo dõi các thay đổi
+  Map<String, double> _memberAmountChanges = {};
+
+  // Thêm biến để theo dõi các thành viên đã chỉnh sửa
+  Set<String> _editedMemberIds = {};
 
   @override
   void initState() {
@@ -62,6 +71,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     _nameController.dispose();
     _noteController.dispose();
     _noteScrollController.dispose();
+    _expenseForScrollController.dispose();
     super.dispose();
   }
 
@@ -70,7 +80,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     final s = S.of(context);
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
-      appBar: _buildAppBar(s),
+      appBar: CustomAppBar(
+        title: s.expense,
+        onAddPressed: () => _validateAndSaveExpense(s),
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -86,53 +99,33 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     );
   }
 
-  AppBar _buildAppBar(S s) {
-    return AppBar(
-      backgroundColor: AppColors.primaryColor,
-      title: Text(
-        s.expense,
-        style: AppTextStyles.titleLarge.copyWith(color: Colors.white),
-      ),
-      leading: IconButton(
-        onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-      ),
-      actions: [
-        _buildAddButton(s),
-      ],
-      toolbarHeight: 60,
-      elevation: 0,
-      flexibleSpace: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Container(
-          color: Colors.transparent,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddButton(S s) {
-    return Card(
-      elevation: 0,
-      color: Colors.green,
-      clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.only(right: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.mediumImpact();
-          _validateAndSaveExpense(s);
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Text(
-            s.add,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-          ),
+  Widget _buildMainUI(S s) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 15.w),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: 15.h),
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            AmountSection(
+              amountController: _amountController,
+              nameController: _nameController,
+              onAmountTap: _showCalculator,
+            ),
+            SizedBox(height: 15.h),
+            ExpenseForSection(
+              selectedMembers: _selectedMembers,
+              memberAmounts: _memberAmounts,
+              onMemberSelectionTap: _showMemberSelectionDialog,
+              onMemberRemove: _removeMember,
+              onMemberAmountEdit: _showEditAmountDialog,
+            ),
+            SizedBox(height: 15.h),
+            NoteSection(
+              noteController: _noteController,
+              noteScrollController: _noteScrollController,
+            ),
+          ],
         ),
       ),
     );
@@ -153,12 +146,28 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       return;
     }
 
+    if (_selectedMembers.isEmpty) {
+      showCustomSnackBar(context, s.expenseForRequiredError,
+          type: SnackBarType.error);
+      return;
+    }
+
+    // Kiểm tra tổng số tiền của các thành viên
+    double totalMemberAmount = _memberAmounts.values.reduce((a, b) => a + b);
+    if ((totalMemberAmount - _totalAmount).abs() > 0.01) {
+      showCustomSnackBar(context,
+          'Tổng số tiền c��a các thành viên (${_formatAmount(totalMemberAmount)}) không khớp với chi tiêu (${_formatAmount(_totalAmount)})',
+          type: SnackBarType.error);
+      return;
+    }
+
     // Nếu tất cả đều hợp lệ, lưu chi tiêu
     _saveExpense();
   }
 
   void _saveExpense() {
     final expense = ExpenseModel(
+      isPaid: false,
       amount: _totalAmount,
       note: _noteController.text,
       photos: [],
@@ -182,57 +191,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     context.read<GroupBloc>().add(ExpenseAdded(expense));
     // Sau khi lưu xong, đóng màn hình
     Navigator.of(context).pop();
-  }
-
-  Widget _buildMainUI(S s) {
-    return Container(
-      margin: EdgeInsets.only(left: 15.w, right: 15.w),
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(bottom: 15.h),
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            _buildAmountSection(s),
-            SizedBox(height: 15.h),
-            _buildExpenseForSection(s),
-            SizedBox(height: 15.h),
-            _buildNoteSection(s),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAmountSection(S s) {
-    return _buildSectionContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle(s.amount),
-          _buildAmountTextField(s),
-          _buildSectionTitle(s.expenseName),
-          _buildNameTextField(s),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAmountTextField(S s) {
-    return TextField(
-      controller: _amountController,
-      style: const TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w500,
-        color: Colors.black,
-      ),
-      readOnly: true,
-      onTap: _showCalculator,
-      decoration: const InputDecoration(
-        border: InputBorder.none,
-        hintText: '0',
-        hintStyle: TextStyle(fontSize: 24),
-      ),
-    );
   }
 
   void _showCalculator() {
@@ -264,6 +222,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       _totalAmount = double.tryParse(value) ?? 0;
       _amountController.text = _formatAmount(_totalAmount);
     }
+    _editedMemberIds.clear(); // Reset edited list when total amount changes
+    _redistributeAmount(); // Phân bổ lại khi tổng số tiền thay đổi
   }
 
   void _updateMemberAmountsBasedOnTotal() {
@@ -274,127 +234,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     }
   }
 
-  Widget _buildNameTextField(S s) {
-    return TextField(
-      controller: _nameController,
-      decoration: InputDecoration(
-        border: InputBorder.none,
-        hintText: s.enterExpenseName,
-        hintStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-      ),
-      textCapitalization: TextCapitalization.sentences,
-      maxLines: 2,
-    );
-  }
-
-  Widget _buildExpenseForSection(S s) {
-    return _buildSectionContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                s.expenseFor,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              GestureDetector(
-                onTap: _showMemberSelectionDialog,
-                child: Row(
-                  children: [
-                    Text(
-                      '${_selectedMembers.length} ${s.people}',
-                      style: const TextStyle(fontSize: 16, color: Colors.blue),
-                    ),
-                    const Icon(Icons.arrow_drop_down, color: Colors.blue),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton.icon(
-            onPressed: _showMemberSelectionDialog,
-            icon: const Icon(Icons.add, color: Colors.blue),
-            label:
-                Text(s.addPerson, style: const TextStyle(color: Colors.blue)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              side: const BorderSide(color: Colors.blue),
-            ),
-          ),
-          const SizedBox(height: 10),
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: 300, // Adjust this value as needed
-            ),
-            child: Scrollbar(
-              thickness: 6,
-              radius: const Radius.circular(10),
-              thumbVisibility: true,
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: _selectedMembers.length,
-                itemBuilder: (context, index) {
-                  final member = _selectedMembers[index];
-                  return ListTile(
-                    leading: GestureDetector(
-                      onTap: () => _removeMember(member),
-                      child: Stack(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: member.avatarUrl != null
-                                ? NetworkImage(member.avatarUrl!)
-                                : const AssetImage(
-                                        'assets/images/avatar_default.png')
-                                    as ImageProvider,
-                            radius: 20,
-                          ),
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.close_rounded,
-                                  size: 12, color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    title: Text(member.name),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${_formatAmount(_memberAmounts[member.id] ?? 0)} đ',
-                          style: TextStyle(color: Colors.orange),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.edit_rounded, size: 20),
-                          onPressed: () => _showEditAmountDialog(member),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showMemberSelectionDialog() {
     final S s = S.of(context);
+    List<MemberModel> tempSelectedMembers = List.from(_selectedMembers);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -415,14 +258,14 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                     children: members.map((MemberModel member) {
                       return CheckboxListTile(
                         title: Text(member.name),
-                        value: _selectedMembers.contains(member),
+                        value: tempSelectedMembers.contains(member),
                         activeColor: AppColors.primaryColor,
                         onChanged: (bool? value) {
                           setState(() {
                             if (value == true) {
-                              _selectedMembers.add(member);
+                              tempSelectedMembers.add(member);
                             } else {
-                              _selectedMembers.remove(member);
+                              tempSelectedMembers.remove(member);
                             }
                           });
                         },
@@ -443,7 +286,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               child:
                   Text(s.ok, style: TextStyle(color: AppColors.primaryColor)),
               onPressed: () {
-                _recalculateMemberAmounts();
+                _updateSelectedMembers(tempSelectedMembers);
                 Navigator.of(context).pop();
               },
             ),
@@ -453,124 +296,74 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     );
   }
 
-  void _recalculateMemberAmounts() {
+  void _updateSelectedMembers(List<MemberModel> newSelectedMembers) {
+    setState(() {
+      for (var member in members) {
+        if (newSelectedMembers.contains(member) &&
+            !_selectedMembers.contains(member)) {
+          _addMember(member);
+        } else if (!newSelectedMembers.contains(member) &&
+            _selectedMembers.contains(member)) {
+          _removeMember(member);
+        }
+      }
+    });
+  }
+
+  void _removeMember(MemberModel member) {
+    setState(() {
+      _selectedMembers.remove(member);
+      _memberAmounts.remove(member.id);
+      _editedMemberIds.remove(member.id);
+      _redistributeAmount();
+    });
+  }
+
+  void _addMember(MemberModel member) {
+    setState(() {
+      _selectedMembers.add(member);
+      _redistributeAmount();
+    });
+  }
+
+  void _redistributeAmount() {
     if (_selectedMembers.isEmpty) {
-      _totalAmount = 0;
-      _amountController.text = '0';
       _memberAmounts.clear();
+      _editedMemberIds.clear();
       return;
     }
 
-    double equalShare = _totalAmount / _selectedMembers.length;
-    for (var member in _selectedMembers) {
-      _memberAmounts[member.id] = equalShare;
+    // Tính tổng số tiền đã được chỉnh sửa
+    double editedTotal = _editedMemberIds.fold(
+        0.0, (sum, id) => sum + (_memberAmounts[id] ?? 0));
+
+    // Tính số tiền còn lại cần phân bổ
+    double remainingAmount = _totalAmount - editedTotal;
+
+    // Đếm số thành viên chưa được chỉnh sửa
+    int unEditedCount = _selectedMembers.length - _editedMemberIds.length;
+
+    if (unEditedCount > 0) {
+      double equalShare = remainingAmount / unEditedCount;
+
+      for (var member in _selectedMembers) {
+        if (!_editedMemberIds.contains(member.id)) {
+          _memberAmounts[member.id] = equalShare;
+        }
+      }
     }
 
     // Xử lý số dư do làm tròn
     double totalDistributed = _memberAmounts.values.reduce((a, b) => a + b);
     double remainder = _totalAmount - totalDistributed;
     if (remainder.abs() > 0.01) {
-      _memberAmounts[_selectedMembers.first.id] =
-          (_memberAmounts[_selectedMembers.first.id] ?? 0) + remainder;
+      String firstUnEditedMemberId = _selectedMembers
+          .firstWhere((m) => !_editedMemberIds.contains(m.id),
+              orElse: () => _selectedMembers.first)
+          .id;
+      _memberAmounts[firstUnEditedMemberId] =
+          (_memberAmounts[firstUnEditedMemberId] ?? 0) + remainder;
     }
-
-    setState(() {
-      _amountController.text = _formatAmount(_totalAmount);
-    });
-  }
-
-  void _removeMember(MemberModel member) {
-    setState(() {
-      double removedAmount = _memberAmounts[member.id] ?? 0;
-      _selectedMembers.remove(member);
-      _memberAmounts.remove(member.id);
-
-      if (_selectedMembers.isNotEmpty) {
-        // Phân bổ lại số tiền của thành viên bị xóa cho các thành viên còn lại
-        double amountPerMember = removedAmount / _selectedMembers.length;
-        for (var remainingMember in _selectedMembers) {
-          _memberAmounts[remainingMember.id] =
-              (_memberAmounts[remainingMember.id] ?? 0) + amountPerMember;
-        }
-
-        // Xử lý số dư do làm tròn
-        double totalDistributed = _memberAmounts.values.reduce((a, b) => a + b);
-        double remainder = _totalAmount - totalDistributed;
-        if (remainder.abs() > 0.01) {
-          _memberAmounts[_selectedMembers.first.id] =
-              (_memberAmounts[_selectedMembers.first.id] ?? 0) + remainder;
-        }
-      } else {
-        // Nếu không còn thành viên nào, đặt tổng số tiền về 0
-        _totalAmount = 0;
-        _amountController.text = '0';
-      }
-
-      // Cập nhật UI
-      _amountController.text = _formatAmount(_totalAmount);
-    });
-  }
-
-  Widget _buildNoteSection(S s) {
-    return _buildSectionContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle(s.note),
-          _buildNoteTextField(s),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoteTextField(S s) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 5 * 24.0,
-      ),
-      child: Scrollbar(
-        thumbVisibility: true,
-        controller: _noteScrollController,
-        child: SingleChildScrollView(
-          controller: _noteScrollController,
-          child: TextField(
-            controller: _noteController,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: s.enterNote,
-              hintStyle:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-            ),
-            textCapitalization: TextCapitalization.sentences,
-            maxLines: null,
-            keyboardType: TextInputType.multiline,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionContainer({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(15.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24.r),
-      ),
-      child: child,
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: Colors.grey[700],
-      ),
-    );
   }
 
   void _showEditAmountDialog(MemberModel member) {
@@ -662,57 +455,52 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   }
 
   void _adjustMemberAmounts(String editedMemberId, double newAmount) {
-    // Đảm bảo newAmount không vượt quá _totalAmount
-    newAmount = min(newAmount, _totalAmount);
-
-    // Tính toán tổng số tiền hiện tại và số tiền cần điều chỉnh
-    double currentTotal = _memberAmounts.values.reduce((a, b) => a + b);
-    double adjustmentAmount = newAmount - (_memberAmounts[editedMemberId] ?? 0);
-
-    // Nếu không có sự thay đổi, không cần điều chỉnh
-    if (adjustmentAmount.abs() < 0.01) return;
-
-    // Cập nhật số tiền cho thành viên được chỉnh sửa
+    double originalAmount = _memberAmounts[editedMemberId] ?? 0;
     _memberAmounts[editedMemberId] = newAmount;
+    _editedMemberIds.add(editedMemberId);
 
-    // Tìm các thành viên khác có thể điều chỉnh
-    List<String> adjustableMembers = _selectedMembers
-        .where((m) => m.id != editedMemberId && (_memberAmounts[m.id] ?? 0) > 0)
-        .map((m) => m.id)
-        .toList();
+    _updateMemberAmountChanges(editedMemberId, originalAmount, newAmount);
+    _redistributeAmount();
 
-    // Nếu không có thành viên nào khác có thể điều chỉnh, thoát
-    if (adjustableMembers.isEmpty) return;
-
-    // Tính toán tổng số tiền có thể điều chỉnh
-    double adjustableTotal = adjustableMembers
-        .map((id) => _memberAmounts[id] ?? 0)
-        .reduce((a, b) => a + b);
-
-    // Điều chỉnh số tiền cho các thành viên khác
-    for (String memberId in adjustableMembers) {
-      double currentAmount = _memberAmounts[memberId] ?? 0;
-      double proportion = currentAmount / adjustableTotal;
-      double adjustment = -adjustmentAmount * proportion;
-      _memberAmounts[memberId] = max(0, currentAmount + adjustment);
+    // Kiểm tra tổng số tiền sau khi phân bổ lại
+    double totalAfterRedistribution =
+        _memberAmounts.values.reduce((a, b) => a + b);
+    if ((totalAfterRedistribution - _totalAmount).abs() > 0.01) {
+      showCustomSnackBar(context,
+          'Cảnh báo: Tổng số tiền (${_formatAmount(totalAfterRedistribution)}) không khớp với chi tiêu (${_formatAmount(_totalAmount)})',
+          type: SnackBarType.error);
     }
 
-    // Xử lý số dư còn lại do làm tròn
-    double newTotal = _memberAmounts.values.reduce((a, b) => a + b);
-    double remainingDifference = _totalAmount - newTotal;
-    if (remainingDifference.abs() > 0.01) {
-      // Phân bổ số dư cho thành viên có số tiền lớn nhất (ngoại trừ thành viên vừa được chỉnh sửa)
-      String maxMemberId = adjustableMembers.reduce((a, b) =>
-          (_memberAmounts[a] ?? 0) > (_memberAmounts[b] ?? 0) ? a : b);
-      _memberAmounts[maxMemberId] =
-          (_memberAmounts[maxMemberId] ?? 0) + remainingDifference;
+    setState(() {});
+  }
+
+  void _updateMemberAmountChanges(
+      String memberId, double oldAmount, double newAmount) {
+    double change = newAmount - oldAmount;
+    if (change.abs() > 0.01) {
+      _memberAmountChanges[memberId] =
+          (_memberAmountChanges[memberId] ?? 0) + change;
     }
+  }
 
-    // Cập nhật _totalAmount và _amountController
-    _totalAmount = _memberAmounts.values.reduce((a, b) => a + b);
-    _amountController.text = _formatAmount(_totalAmount);
+  // Thêm phương thức để lấy danh sách thay đổi
+  List<Map<String, dynamic>> getAmountChangesList() {
+    return _memberAmountChanges.entries.map((entry) {
+      String memberId = entry.key;
+      double change = entry.value;
+      String memberName =
+          _selectedMembers.firstWhere((m) => m.id == memberId).name;
+      return {
+        'name': memberName,
+        'amount': change,
+      };
+    }).toList();
+  }
 
-    setState(() {}); // Cập nhật UI
+  // Thêm phương thức để reset danh sách chỉnh sửa
+  void _resetEditedList() {
+    _editedMemberIds.clear();
+    _redistributeAmount();
   }
 
   String _formatAmount(double amount) {

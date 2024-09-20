@@ -27,6 +27,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     on<FindGroupById>(_onFindGroupById);
     on<FindGroupByCode>(_onFindGroupByCode);
     on<ExpenseAdded>(_onExpenseAdded);
+    on<ProcessPayment>(_onProcessPayment);
   }
 
   Future<void> _onAddGroup(AddGroup event, Emitter<GroupState> emit) async {
@@ -195,13 +196,16 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
         double balance = 0;
 
         for (var expense in updatedGroup.expenses) {
-          if (expense.byPeople.id == member.id) {
-            totalExpense += expense.amount;
-          }
+          if (!expense.isPaid) {
+            // Chỉ xử lý các expense chưa thanh toán
+            if (expense.byPeople.id == member.id) {
+              totalExpense += expense.amount;
+            }
 
-          for (var forPerson in expense.forPeople) {
-            if (forPerson.id == member.id) {
-              balance -= forPerson.balance;
+            for (var forPerson in expense.forPeople) {
+              if (forPerson.id == member.id) {
+                balance += forPerson.balance;
+              }
             }
           }
         }
@@ -213,7 +217,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
           avatarUrl: member.avatarUrl,
           description: member.description,
           totalExpenseAmount: totalExpense,
-          balance: balance,
+          balance: totalExpense - balance,
           isIdentified: member.isIdentified,
           role: member.role,
           bankAccountInfo: member.bankAccountInfo,
@@ -233,6 +237,22 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
       emit(GroupError(e.message ?? 'Lỗi khi thêm chi phí vào nhóm'));
     } catch (e) {
       emit(GroupError('Thêm chi phí vào nhóm thất bại: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onProcessPayment(
+      ProcessPayment event, Emitter<GroupState> emit) async {
+    emit(GroupValidating());
+    try {
+      final updatedGroup = await _groupRepository.processPayment(
+          event.groupId, event.payerId, event.transactions);
+
+      emit(GroupActionResult(
+          message: "Thanh toán thành công", group: updatedGroup));
+    } on FirebaseException catch (e) {
+      emit(GroupError(e.message ?? 'Lỗi khi xử lý thanh toán'));
+    } catch (e) {
+      emit(GroupError('Xử lý thanh toán thất bại: ${e.toString()}'));
     }
   }
 }

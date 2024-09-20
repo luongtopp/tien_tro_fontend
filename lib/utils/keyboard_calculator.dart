@@ -165,7 +165,8 @@ class _KeyboardCalculatorState extends State<KeyboardCalculator> {
       Parser p = Parser();
       Expression exp = p.parse(expression);
       ContextModel cm = ContextModel();
-      return exp.evaluate(EvaluationType.REAL, cm);
+      double result = exp.evaluate(EvaluationType.REAL, cm);
+      return result.round(); // Làm tròn đến số nguyên gần nhất
     } on Exception catch (e) {
       throw const FormatException('Biểu thức không hợp lệ');
     }

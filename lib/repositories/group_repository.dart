@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../blocs/group_bloc/group_events.dart';
 import '../models/expense_model.dart';
 import '../models/group_model.dart';
 import '../models/member_model.dart';
@@ -357,5 +358,42 @@ class GroupRepository {
     } catch (e) {
       throw Exception('Lỗi thêm chi phí vào nhóm: $e');
     }
+  }
+
+  Future<GroupModel> processPayment(String groupId, String payerId,
+      List<PaymentTransaction> transactions) async {
+    final groupRef = _firestore.collection('groups').doc(groupId);
+
+    return _firestore.runTransaction((transaction) async {
+      final groupDoc = await transaction.get(groupRef);
+      final group = GroupModel.fromFirestore(groupDoc);
+
+      var updatedMembers = group.members.toList();
+
+      for (var transaction in transactions) {
+        var payerIndex =
+            updatedMembers.indexWhere((member) => member.id == payerId);
+        var receiverIndex = updatedMembers
+            .indexWhere((member) => member.id == transaction.receiverId);
+
+        if (payerIndex != -1) {
+          updatedMembers[payerIndex] = updatedMembers[payerIndex].copyWith(
+              balance: updatedMembers[payerIndex].balance + transaction.amount);
+        }
+
+        if (receiverIndex != -1) {
+          updatedMembers[receiverIndex] = updatedMembers[receiverIndex]
+              .copyWith(
+                  balance: updatedMembers[receiverIndex].balance -
+                      transaction.amount);
+        }
+      }
+
+      final updatedGroup = group.copyWith(members: updatedMembers);
+
+      transaction.update(groupRef, updatedGroup.toMap());
+
+      return updatedGroup;
+    });
   }
 }

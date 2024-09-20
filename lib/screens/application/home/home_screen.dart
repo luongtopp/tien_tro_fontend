@@ -17,6 +17,7 @@ import '../../../utils/dimensions.dart';
 import '../../../widgets/appbars/custom_appbar.dart';
 import '../expense/expense_list_screen.dart';
 import '../expense/expense_screen.dart';
+import '../expense/payment_screen.dart';
 import '../group/edit_group_screen.dart';
 import '../group/group_detail_screen.dart';
 import '../group/group_management.dart';
@@ -35,8 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    context.read<GroupStreamBloc>().add(StreamGroup(widget.user.id));
-
+    final groupBloc = context.read<GroupStreamBloc>();
+    groupBloc.add(const ResetGroupStream());
+    groupBloc.add(StreamGroup(widget.user.id));
     return BlocBuilder<GroupStreamBloc, GroupStreamState>(
       builder: (context, state) {
         return Container(
@@ -124,8 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         return ExpenseListScreen(groupModel: groupModel);
       case 2:
-        return const NotificationScreen();
-      case 3:
         return GroupDetailScreen(groupModel: groupModel);
       default:
         return const SizedBox.shrink();
@@ -153,10 +153,8 @@ class _HomeScreenState extends State<HomeScreen> {
             0, Icons.group_rounded, Icons.group_outlined, S.of(context).group),
         _buildBottomNavigationBarItem(1, Icons.account_balance_wallet_rounded,
             Icons.account_balance_wallet_outlined, S.of(context).expense),
-        _buildBottomNavigationBarItem(2, Icons.notifications_rounded,
-            Icons.notifications_outlined, S.of(context).notification),
         _buildBottomNavigationBarItem(
-            3, Icons.info_rounded, Icons.info_outlined, S.of(context).detail),
+            2, Icons.info_rounded, Icons.info_outlined, S.of(context).detail),
       ],
     );
   }
@@ -214,7 +212,14 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.payment_rounded,
           label: S.of(context).payDebt,
           color: Colors.green,
-          onTap: () {/* Add new member */},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      PaymentScreen(groupModel: group, userModel: widget.user)),
+            );
+          },
         ),
       ],
     );
