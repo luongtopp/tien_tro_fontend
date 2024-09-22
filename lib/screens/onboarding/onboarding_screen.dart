@@ -11,6 +11,7 @@ import '../../blocs/onboarding_bloc/onboarding_events.dart';
 import '../../blocs/onboarding_bloc/onboarding_states.dart';
 import '../../config/text_styles.dart';
 import '../../generated/l10n.dart';
+import '../../global.dart';
 import '../../routes/app_route.dart';
 import '../../widgets/buttons/custom_button.dart';
 
@@ -151,6 +152,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   curve: Curves.decelerate,
                 );
               } else if (index == 2) {
+                Global.storageService.setBool('device_first_open', true);
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil(AppRoutes.LOGIN, (route) => false);
               }

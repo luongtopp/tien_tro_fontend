@@ -186,7 +186,7 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     emit(GroupValidating());
     try {
       await _groupRepository.addExpenseToGroup(event.expense);
-      // Cập nhật group với member totalExpenseAmount và balance
+      // Cập nh��t group với member totalExpenseAmount và balance
       final updatedGroup =
           await _groupRepository.getGroupById(event.expense.groupId);
 
@@ -197,7 +197,6 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
 
         for (var expense in updatedGroup.expenses) {
           if (!expense.isPaid) {
-            // Chỉ xử lý các expense chưa thanh toán
             if (expense.byPeople.id == member.id) {
               totalExpense += expense.amount;
             }

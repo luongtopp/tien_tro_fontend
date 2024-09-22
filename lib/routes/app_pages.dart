@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import '../global.dart';
 import '../models/group_model.dart';
 import '../models/user_model.dart';
 import '../screens/auth/forgot_password_screen.dart';
@@ -10,12 +11,9 @@ import '../screens/application/group/create_group_screen.dart';
 import '../screens/application/group/group_screen.dart';
 import '../screens/application/group/join_group_screen.dart';
 import '../screens/application/home/zoom_drawer_screen.dart';
-import '../services/storage_service.dart';
 import 'app_route.dart';
 
 class AppPages {
-  static final StorageService _storageService = StorageService();
-
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.INITIAL:
@@ -58,26 +56,26 @@ class AppPages {
   }
 
   static Route<dynamic> _handleInitialRoute(RouteSettings settings) {
-    //   bool deviceFirstOpen = _storageService.getDeviceFirstOpen();
-    //   if (deviceFirstOpen) {
-    return _buildRoute(settings, const OnBoardingScreen(),
-        transition: TransitionType.fade);
-    //   } else {
-    //     // Kiểm tra xem người dùng đã đăng nhập chưa
-    //     bool isLoggedIn = _storageService.getIsLoggedIn();
-    //     if (isLoggedIn) {
-    //       UserModel? user = _storageService.getUser();
-    //       if (user != null) {
-    //         if (user.lastAccessedGroupId != null) {
-    //           return _buildRoute(settings, ZoomDrawerScreen(user: user));
-    //         } else {
-    //           return _buildRoute(settings, GroupScreen(user: user));
-    //         }
-    //       }
-    //     }
-    //     // Nếu chưa đăng nhập, chuyển đến màn hình đăng nhập
-    //     return _buildRoute(settings, const LoginScreen());
-    //   }
+    bool deviceFirstOpen = Global.storageService.getDeviceFirstOpen();
+    if (deviceFirstOpen) {
+      return _buildRoute(settings, const OnBoardingScreen(),
+          transition: TransitionType.fade);
+      //   } else {
+      //     // Kiểm tra xem người dùng đã đăng nhập chưa
+      //     bool isLoggedIn = _storageService.getIsLoggedIn();
+      //     if (isLoggedIn) {
+      //       UserModel? user = _storageService.getUser();
+      //       if (user != null) {
+      //         if (user.lastAccessedGroupId != null) {
+      //           return _buildRoute(settings, ZoomDrawerScreen(user: user));
+      //         } else {
+      //           return _buildRoute(settings, GroupScreen(user: user));
+      //         }
+      //       }
+      //     }
+      //     // Nếu chưa đăng nhập, chuyển đến màn hình đăng nhập
+    }
+    return _buildRoute(settings, const LoginScreen());
   }
 
   static Route<dynamic> _buildRoute(
